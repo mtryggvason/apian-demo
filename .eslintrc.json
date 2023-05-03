@@ -1,3 +1,36 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "airbnb",
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "settings": {
+    "import/resolver": {
+      "typescript": {} // this loads <rootdir>/tsconfig.json to eslint
+    }
+  },
+  "rules": {
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+    "react/jsx-props-no-spreading": 0, 
+    "react/prop-types": 0,
+    "react/require-default-props": 0,
+    "react/react-in-jsx-scope": 0,
+    "no-console": "warn",
+    "object-curly-newline": 0,
+    "import/extensions": 0,
+    "max-len": "off",
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": ["error"],
+    "no-unused-vars": "warn",
+    "import/prefer-default-export": 0,
+    "jsx-a11y/no-static-element-interactions": 1,
+    "jsx-a11y/no-noninteractive-element-interactions" : 1,
+    "jsx-a11y/click-events-have-key-events" : 1,
+    "jsx-a11y/media-has-caption": 1
+  },
+  "globals": {
+    "fetch": false,
+    "window": false,
+    "document": false,
+    "HTMLDivElement": false,
+    "Image": false
+  }
 }
