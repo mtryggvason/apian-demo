@@ -15,7 +15,6 @@ export const useUpdatingMarkerLocation = ({retriveLocation, getRouteLength}: {re
       routeLength.current = await getRouteLength();
     }
     const updateLocation = async () =>  {
-      console.log(index.current);
       const newLocation = await retriveLocation(index.current) as GeoPoint;
       if (!newLocation) return;
       setLocation({
