@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-export const useAuthRedirect = (auth) => {
+export const useAuthRedirect = (auth:any) => {
   const router = useRouter();
   useEffect(() => {
       auth.onAuthStateChanged(() => {
