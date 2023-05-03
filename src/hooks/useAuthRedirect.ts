@@ -11,5 +11,5 @@ export const useAuthRedirect = (auth:any) => {
             router.push('/');
         }
       });
-    }, [router]);
+    }, []);
 }
