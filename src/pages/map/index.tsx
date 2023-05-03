@@ -66,14 +66,15 @@ export default function Map({endpoints = LOCATIONS}) {
       setDidCreateRoute(await createPath(locationsArray));
     }
     initRoute();
-  }, [endpoints]);
+  }, []);
+
 
   return (
     <div className={` h-screen w-screen`}>
       <GoogleMapReact
         center={geoJSONToGoogleMap(centerPoint.geometry)}
         defaultZoom={13}
-        bootstrapURLKeys={{ key: "AIzaSyCS5J3OpLoHve9VNZySKDpsupmXyOav3NY"}}
+        bootstrapURLKeys={{ key: '' +process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}}
       >
         {endpoints.map((location:any, index:number) => 
           <HospitalMarker
