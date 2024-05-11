@@ -31,7 +31,6 @@ export const useUpdatingMarkerLocation = ({retriveLocation, getRouteLength}: {re
     }
     updateRouteLength();
     updateLocation();
-    
   }, []);
 
   return location;
