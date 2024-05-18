@@ -1,9 +1,9 @@
+import { Feature, Point, Properties } from "@turf/turf";
 import { GeoPoint } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 
-export const useUpdatingMarkerLocation = ({retriveLocation, getRouteLength}: {retriveLocation: Function, getRouteLength: Function}) => {
+export const useUpdatingMarkerLocation = (route:  Array<Feature<Point, Properties>>) => {
   const index = useRef(0);
-  const routeLength = useRef(0);
   const directionMultiplier = useRef(1);
   const [location, setLocation] = useState({
     lat: 0,
@@ -11,27 +11,25 @@ export const useUpdatingMarkerLocation = ({retriveLocation, getRouteLength}: {re
   });
 
   useEffect(() => {
-    const updateRouteLength = async () => {
-      routeLength.current = await getRouteLength();
-    }
-    const updateLocation = async () =>  {
-      const newLocation = await retriveLocation(index.current) as GeoPoint;
+    const updateLocation =  () =>  {
+      const newLocation = route[index.current];
       if (!newLocation) return;
       setLocation({
-        lat: newLocation.latitude,
-        lng: newLocation.longitude
+        lat: newLocation.geometry.coordinates[1],
+        lng: newLocation.geometry.coordinates[0],
       });
       // If we reached one endpoint we reverse
-      if (index.current === routeLength.current - 1  || (index.current === 0 && directionMultiplier.current < 0) ) {
+      if (index.current === route.length - 1  || (index.current === 0 && directionMultiplier.current < 0) ) {
         directionMultiplier.current = directionMultiplier.current * -1;
       }
 
       index.current = Math.max(index.current + directionMultiplier.current, 0);
       setTimeout(updateLocation, 1000);
     }
-    updateRouteLength();
-    updateLocation();
-  }, []);
+    if(route.length > 0) {
+      updateLocation();      
+    }
+  }, [route]);
 
   return location;
 }

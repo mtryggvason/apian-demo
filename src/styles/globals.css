@@ -16,4 +16,10 @@
   }
 }
 
+body, #__next {
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
 
