@@ -1,6 +1,6 @@
 
 
-import { Point, Position, along, center, distance, lineString, point, points } from '@turf/turf';
+import { Feature, Point, Position, Properties, along, center, distance, lineString, point, points } from '@turf/turf';
 import { useEffect, useRef, useState } from 'react';
 import { addPositions } from '@/remote/locationService';
 import { useUpdatingMarkerLocation } from '@/hooks/useUpdatingMarkerLocation';
@@ -44,12 +44,12 @@ function createPath(inputPoints: Array<Position>, ) {
 }
 
 export default function Page({endpoints = LOCATIONS}) {
-  const [route, setRoute ]= useState([]);
+  const [route, setRoute ]= useState<any>([]);
   const map = useRef<MapRef>(null);
   const location = useUpdatingMarkerLocation(route);
   useEffect(() => {
     async function initRoute() {
-      const locationsArray = endpoints.map(location => Object.values(location));
+      const locationsArray = endpoints.map(location => Object.values(location)) as Array<Position>;
       setRoute(createPath(locationsArray));
     }
     initRoute();

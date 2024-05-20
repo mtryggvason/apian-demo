@@ -1,7 +1,7 @@
 import { bearing, point, rhumbBearing } from "@turf/turf";
 
 // utils/geoUtils.js
-export const calculateBearingAndElevation = (startLat, startLng, startAlt, destLat, destLng, destAlt) => {
+export const calculateBearingAndElevation = (startLat:number, startLng: number, startAlt: number, destLat: number, destLng: number, destAlt: number) => {
     const startLatRad = (startLat * Math.PI) / 180;
     const startLngRad = (startLng * Math.PI) / 180;
     const destLatRad = (destLat * Math.PI) / 180;

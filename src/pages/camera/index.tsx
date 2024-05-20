@@ -1,6 +1,6 @@
 import { Arrow } from "@/components/Compass";
 import { Canvas } from "@react-three/fiber";
-import { LngLat } from "mapbox-gl";
+import { LngLat, LngLatLike } from "mapbox-gl";
 import React, { useState } from "react";
 import { useWindowSize } from "react-use";
 import Webcam from "react-webcam";
@@ -11,15 +11,15 @@ const WebcamComponent = () => {
     facingMode: { exact: "environment" }
   };
   const [hasPermission, setHasPermission] = useState(false);
-  const [userLocation, setUserLocation] = useState<Lng|null>(null);
+  const [userLocation, setUserLocation] = useState<LngLatLike|null>(null);
   const requestPermission = () => {
     getGyroscopePermission();
     getUserLocation();
   }
 
   const getGyroscopePermission = async () => {
-    if (typeof DeviceMotionEvent.requestPermission === 'function') {
-      const response = await DeviceMotionEvent.requestPermission();
+    if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+      const response = await (DeviceMotionEvent as any).requestPermission();
       if (response === 'granted') {
         setHasPermission(true);
         getUserLocation();
@@ -54,8 +54,7 @@ const WebcamComponent = () => {
       <Arrow userLocation={{lat: 1.5001, lng: .1182}} targetLocation={{lat: 51.5001, lng: 0.1182}}  />
     </Canvas>)
     }
-    {!hasPermission && <button onClick={requestPermission} class="z-10 absolute bottom-2 left-1/2 transform -translate-x-1/2  mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">Get Started!     {userLocation?.lat}
-</button>}
+    {!hasPermission && <button onClick={requestPermission} className="z-10 absolute bottom-2 left-1/2 transform -translate-x-1/2  mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">Get Started!</button>}
     </div>
    )
 }
