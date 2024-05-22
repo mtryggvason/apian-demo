@@ -4,7 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { LngLat, LngLatLike } from "mapbox-gl";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
-import { Map } from "react-map-gl";
+import { Map, Marker } from "react-map-gl";
 import { useDebounce, useWindowSize } from "react-use";
 import Webcam from "react-webcam";
 
@@ -130,7 +130,14 @@ const WebcamComponent = () => {
             scrollZoom={false}
             style={{ width: "100vw", height: "100vh" }}
             mapStyle="mapbox://styles/mapbox/standard"
-          />
+          >
+            <Marker latitude={userLocation.lat} longitude={userLocation.lng}>
+              <span className="relative flex h-5 w-5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+              </span>
+            </Marker>
+          </Map>
         </div>
       )}
 
