@@ -17,7 +17,6 @@ const WebcamComponent = () => {
   const canvasRef = useRef<any>();
   const mapRef = useRef<any>();
   const { width, height } = useWindowSize();
-  useDebounce;
   const videoConstraints = {
     facingMode: { exact: "environment" },
   };
@@ -92,8 +91,12 @@ const WebcamComponent = () => {
   return (
     <>
       <div className="relative" id="webcam">
-        <Webcam width={width} height={height} />
-        {hasPermission && (
+        <Webcam
+          videoConstraints={videoConstraints}
+          width={width}
+          height={height}
+        />
+        {hasPermission && userLocation && (
           <>
             <div
               ref={canvasRef}
@@ -101,8 +104,8 @@ const WebcamComponent = () => {
             >
               <Canvas>
                 <Arrow
-                  userLocation={{ lat: 1.5001, lng: 0.1182 }}
-                  targetLocation={{ lat: 51.5001, lng: 0.1182 }}
+                  userLocation={{ lat: 1.5001, lng: 0.087 }}
+                  targetLocation={userLocation}
                 />
               </Canvas>
             </div>
