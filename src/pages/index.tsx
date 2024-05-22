@@ -28,6 +28,11 @@ const WebcamComponent = () => {
     getGyroscopePermission();
   };
 
+  useEffect(() => {
+    document.addEventListener("keypress", (e) => {
+      setOrientation((orientation) => (orientation ? 0 : 1));
+    });
+  }, []);
   const getGyroscopePermission = async () => {
     if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
       const response = await (DeviceMotionEvent as any).requestPermission();
@@ -84,13 +89,14 @@ const WebcamComponent = () => {
     if (orientation === 1) {
       mapRef.current?.scrollIntoView({ behavior: "smooth" });
     } else {
+      debugger;
       canvasRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [orientation]);
 
   return (
     <>
-      <div className="relative" id="webcam">
+      <div className="relative h-screen" id="webcam">
         <Webcam
           videoConstraints={videoConstraints}
           width={width}
@@ -119,7 +125,7 @@ const WebcamComponent = () => {
         )}
       </div>
       {userLocation && (
-        <div ref={mapRef.current}>
+        <div className="relative h-screen" ref={mapRef.current}>
           <Map
             mapboxAccessToken={process.env.NEXT_PUBLIC_MAPS_KEY}
             initialViewState={{
@@ -132,21 +138,23 @@ const WebcamComponent = () => {
             mapStyle="mapbox://styles/mapbox/standard"
           >
             <Marker latitude={userLocation.lat} longitude={userLocation.lng}>
-              <span className="relative flex h-5 w-5">
+              <span className="relative flex h-4 w-4">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-sky-500"></span>
               </span>
             </Marker>
           </Map>
         </div>
       )}
 
-      <button
-        onClick={requestPermission}
-        className="z-10 fixed top-2 left-1/2 transform -translate-x-1/2  mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-      >
-        Get Started!
-      </button>
+      {!hasPermission && (
+        <button
+          onClick={requestPermission}
+          className="z-10 fixed top-2 left-1/2 transform -translate-x-1/2  mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+        >
+          Get Started!
+        </button>
+      )}
     </>
   );
 };
