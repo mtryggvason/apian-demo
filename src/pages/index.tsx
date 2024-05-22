@@ -147,14 +147,12 @@ const WebcamComponent = () => {
         </div>
       )}
 
-      {!hasPermission && (
-        <button
-          onClick={requestPermission}
-          className="z-10 fixed top-2 left-1/2 transform -translate-x-1/2  mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-        >
-          Get Started!
-        </button>
-      )}
+      <button
+        onClick={requestPermission}
+        className="z-10 fixed top-2 left-1/2 transform -translate-x-1/2  mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+      >
+        Get Started! orientation
+      </button>
     </>
   );
 };
