@@ -1,10 +1,15 @@
 // src/Arrow.js
-import React, { useEffect, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
-import { calculateBearingAndElevation } from '@/utils/geoUtils';
+import React, { useEffect, useState } from "react";
+import * as THREE from "three";
+import { calculateBearingAndElevation } from "@/utils/geoUtils";
 
-export function Arrow({ userLocation, targetLocation }: {userLocation: any, targetLocation:any}) {
+export function Arrow({
+  userLocation,
+  targetLocation,
+}: {
+  userLocation: any;
+  targetLocation: any;
+}) {
   const [rotation, setRotation] = useState(new THREE.Euler(0, 0, 0));
   const [orientation, setOrientation] = useState({ bearing: 0, elevation: 0 });
 
@@ -29,23 +34,25 @@ export function Arrow({ userLocation, targetLocation }: {userLocation: any, targ
   }, [userLocation, targetLocation]);
 
   useEffect(() => {
-    const handleOrientation = (event: any ) => {
+    const handleOrientation = (event: any) => {
       const { alpha, beta, gamma } = event; // Rotation around the Z, X, and Y axes respectively
-      setRotation(new THREE.Euler(
-        THREE.MathUtils.degToRad(beta - orientation.elevation),  // Pitch
-        THREE.MathUtils.degToRad(gamma),                         // Roll
-        THREE.MathUtils.degToRad(alpha - orientation.bearing)    // Yaw
-      ));
+      setRotation(
+        new THREE.Euler(
+          THREE.MathUtils.degToRad(beta - orientation.elevation), // Pitch
+          THREE.MathUtils.degToRad(gamma), // Roll
+          THREE.MathUtils.degToRad(alpha - orientation.bearing) // Yaw
+        )
+      );
     };
 
     if (window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', handleOrientation);
+      window.addEventListener("deviceorientation", handleOrientation);
     } else {
-      alert('DeviceOrientationEvent is not supported on your device/browser.');
+      alert("DeviceOrientationEvent is not supported on your device/browser.");
     }
 
     return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
+      window.removeEventListener("deviceorientation", handleOrientation);
     };
   }, [orientation]);
 
