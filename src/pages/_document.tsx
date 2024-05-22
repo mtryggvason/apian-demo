@@ -4,6 +4,21 @@ export default function Document() {
   return (
     <Html lang="en">
       <title>Drone Spotter</title>
+      <link
+        rel="apple-touch-icon"
+        sizes="128x128"
+        href="/icons/appIcons/128.png"
+      ></link>
+      <link
+        rel="apple-touch-icon"
+        sizes="256x256"
+        href="/icons/appIcons/256.png"
+      ></link>
+      <link
+        rel="apple-touch-icon"
+        sizes="512x512"
+        href="/icons/appIcons/512.png"
+      ></link>
       <Head>
         <meta
           name="viewport"
