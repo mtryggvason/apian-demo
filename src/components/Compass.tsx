@@ -38,9 +38,9 @@ export function Arrow({
       const { alpha, beta, gamma } = event; // Rotation around the Z, X, and Y axes respectively
       setRotation(
         new THREE.Euler(
-          THREE.MathUtils.degToRad(beta - orientation.elevation), // Pitch
+          THREE.MathUtils.degToRad(120), // Pitch
           THREE.MathUtils.degToRad(gamma), // Roll
-          THREE.MathUtils.degToRad(alpha - orientation.bearing) // Yaw
+          THREE.MathUtils.degToRad(alpha + orientation.bearing) // Yaw
         )
       );
     };
@@ -62,11 +62,11 @@ export function Arrow({
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <mesh rotation={rotation}>
         {/* Arrow shaft */}
-        <cylinderGeometry args={[0.2, 0.2, 4, 32]} />
+        <cylinderGeometry args={[0.3, 0.3, 6, 32]} />
         <meshStandardMaterial color="blue" />
         {/* Arrowhead */}
-        <mesh position={[0, 2, 0]}>
-          <coneGeometry args={[0.4, 1, 32]} />
+        <mesh position={[0, 3, 0]}>
+          <coneGeometry args={[0.6, 1.5, 32]} />
           <meshStandardMaterial color="blue" />
         </mesh>
       </mesh>

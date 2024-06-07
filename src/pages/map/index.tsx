@@ -14,7 +14,6 @@ import { useEffect, useRef, useState } from "react";
 import { addPositions } from "@/remote/locationService";
 import { useUpdatingMarkerLocation } from "@/hooks/useUpdatingMarkerLocation";
 import { useGLTF, useAnimations } from "@react-three/drei";
-import SplineLoader from "@splinetool/loader";
 
 import Map, { MapRef } from "react-map-gl";
 import { Canvas } from "react-three-map"; // if you are using MapBox
@@ -74,21 +73,6 @@ export default function Page({ endpoints = LOCATIONS }) {
         center: [location.lat, location.lng],
         bearing: map.current.getBearing() + 10,
       });
-      /*
-    camera.position = MercatorCoordinate.fromLngLat(
-        {
-            lng: location.lng,
-            lat: 
-        },
-        cameraAltitude
-    );
-
-    camera.lookAtPoint({
-      lng: location.lng,
-      lat: location.lat
-    });
-    map.current.setFreeCameraOptions(camera) 
-    */
     }
   }, [map, location]);
 

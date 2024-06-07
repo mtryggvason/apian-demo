@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Map, Marker } from "react-map-gl";
 import { useDebounce, useWindowSize } from "react-use";
 import Webcam from "react-webcam";
+import ARView from "@/components/AR";
 
 interface Position {
   lat: number;
@@ -87,31 +88,24 @@ const WebcamComponent = () => {
   useEffect(() => {
     // beta gives the tilt in the Y axis
     if (orientation === 1) {
-      mapRef.current?.scrollIntoView({ behavior: "smooth" });
-    } else {
-      debugger;
       canvasRef.current?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      mapRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [orientation]);
 
   return (
     <>
-      <div className="relative h-screen" id="webcam">
-        <Webcam
-          videoConstraints={videoConstraints}
-          width={width}
-          height={height}
-        />
+      <div ref={canvasRef} className="relative h-[calc(100dvh)]" id="webcam">
+        {userLocation && <ARView location={userLocation} />}
+
         {hasPermission && userLocation && (
           <>
-            <div
-              ref={canvasRef}
-              className="absolute bottom-10  left-1/2 transform -translate-x-1/2  mt-2"
-            >
+            <div className="absolute bottom-10  left-1/2 transform -translate-x-1/2  mt-2">
               <Canvas>
                 <Arrow
-                  userLocation={{ lat: 1.5001, lng: 0.087 }}
-                  targetLocation={userLocation}
+                  userLocation={userLocation}
+                  targetLocation={{ lat: 48.1858, lng: 16.3128 }}
                 />
               </Canvas>
             </div>
@@ -125,7 +119,7 @@ const WebcamComponent = () => {
         )}
       </div>
       {userLocation && (
-        <div className="relative h-screen" ref={mapRef.current}>
+        <div className="relative h-screen" ref={mapRef}>
           <Map
             mapboxAccessToken={process.env.NEXT_PUBLIC_MAPS_KEY}
             initialViewState={{
@@ -151,7 +145,7 @@ const WebcamComponent = () => {
         onClick={requestPermission}
         className="z-10 fixed top-2 left-1/2 transform -translate-x-1/2  mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
       >
-        Get Started! orientation
+        Get Started! {orientation}
       </button>
     </>
   );
