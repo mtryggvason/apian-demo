@@ -17,6 +17,7 @@ import { useGLTF, useAnimations } from "@react-three/drei";
 
 import Map, { MapRef } from "react-map-gl";
 import { Canvas } from "react-three-map"; // if you are using MapBox
+import { useValueTransition } from "@/hooks/useValueTransition";
 
 function geoJSONToGoogleMap(point: Point): { lat: number; lng: number } {
   return { lat: point.coordinates[0], lng: point.coordinates[1] };
@@ -54,6 +55,8 @@ export default function Page({ endpoints = LOCATIONS }) {
   const [route, setRoute] = useState<any>([]);
   const map = useRef<MapRef>(null);
   const location = useUpdatingMarkerLocation(route);
+  const lat = useValueTransition(location.lat, 1000);
+  const lng = useValueTransition(location.lng, 1000);
   useEffect(() => {
     async function initRoute() {
       const locationsArray = endpoints.map((location) =>
@@ -69,13 +72,12 @@ export default function Page({ endpoints = LOCATIONS }) {
       const camera = map.current.getFreeCameraOptions();
       const cameraAltitude = 40000;
 
-      map.current.flyTo({
-        center: [location.lat, location.lng],
-        bearing: map.current.getBearing() + 10,
+      map.current.jumpTo({
+        center: [lat, lng],
+        bearing: map.current.getBearing() + 0.5,
       });
     }
-  }, [map, location]);
-
+  }, [map, location, lat, lng]);
   return (
     <Map
       ref={map}
@@ -90,12 +92,7 @@ export default function Page({ endpoints = LOCATIONS }) {
       style={{ width: "100vw", height: "100vh" }}
       mapStyle="mapbox://styles/mapbox/standard"
     >
-      <Canvas
-        frameloop="always"
-        altitude={100}
-        latitude={location.lng}
-        longitude={location.lat}
-      >
+      <Canvas frameloop="always" altitude={100} latitude={lng} longitude={lat}>
         <pointLight position={[10, 10, 10]} />
         <mesh>
           <SpliceElement path="/scene.gltf" />

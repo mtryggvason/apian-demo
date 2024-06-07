@@ -4,14 +4,19 @@ export default function Document() {
   return (
     <Html lang="en">
       <title>Drone Spotter</title>
-      <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+      <script
+        src="https://aframe.io/releases/1.3.0/aframe.min.js"
+        defer
+      ></script>
       <script
         type="text/javascript"
         src="https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js"
+        defer
       ></script>
       <script
         type="text/javascript"
         src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"
+        defer
       ></script>
       <link
         rel="apple-touch-icon"

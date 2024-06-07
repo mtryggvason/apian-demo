@@ -4,6 +4,12 @@ const linear = (timePassed: number, totalDuration: number) => {
   return timePassed / totalDuration;
 };
 
+interface useValueTransitionOptions {
+  inputValue: number;
+  duration: number;
+  easing?: (timePassed: number, totalDuration: number) => number;
+}
+
 /**
  * hook that transitions between numerical values, comes in handy when animating
  * @param inputValue value that should transition
@@ -11,14 +17,13 @@ const linear = (timePassed: number, totalDuration: number) => {
  * @param easing easing functions
  * @returns
  */
-export const useValueTransition = (
-  inputValue: number,
+export const useValueTransition = ({
+  inputValue,
   duration = 1000,
-  easing = linear
-) => {
+  easing = linear,
+}: useValueTransitionOptions) => {
   const [value, setValue] = useState(inputValue);
   const [isTransitioning, setIsTransitioning] = useState(false);
-
   useEffect(() => {
     const startTime = new Date();
     const distance = inputValue - value;
@@ -26,7 +31,7 @@ export const useValueTransition = (
     const transitionTo = () => {
       const timePassed = Math.max(
         new Date().getTime() - startTime.getTime(),
-        1
+        1,
       );
       if (timePassed >= duration) {
         setValue(inputValue);

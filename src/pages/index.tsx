@@ -1,13 +1,12 @@
 import { Arrow } from "@/components/Compass";
 import { DroneButton } from "@/components/icons/DroneButton";
 import { Canvas } from "@react-three/fiber";
-import { LngLat, LngLatLike } from "mapbox-gl";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { Map, Marker } from "react-map-gl";
-import { useDebounce, useWindowSize } from "react-use";
-import Webcam from "react-webcam";
+import { useWindowSize } from "react-use";
 import ARView from "@/components/AR";
+import { ArMap } from "@/components/ArMap";
 
 interface Position {
   lat: number;
@@ -17,10 +16,6 @@ interface Position {
 const WebcamComponent = () => {
   const canvasRef = useRef<any>();
   const mapRef = useRef<any>();
-  const { width, height } = useWindowSize();
-  const videoConstraints = {
-    facingMode: { exact: "environment" },
-  };
   const [orientation, setOrientation] = useState(0);
   const [hasPermission, setHasPermission] = useState(false);
   const [userLocation, setUserLocation] = useState<Position | null>(null);
@@ -75,7 +70,6 @@ const WebcamComponent = () => {
         setOrientation(0);
       }
     };
-
     if (hasPermission) {
       window.addEventListener("deviceorientation", handleOrientation);
     }
@@ -98,10 +92,9 @@ const WebcamComponent = () => {
     <>
       <div ref={canvasRef} className="relative h-[calc(100dvh)]" id="webcam">
         {userLocation && <ARView location={userLocation} />}
-
         {hasPermission && userLocation && (
           <>
-            <div className="absolute bottom-10  left-1/2 transform -translate-x-1/2  mt-2">
+            <div className="absolute bottom-14  left-1/2 transform -translate-x-1/2  mt-2">
               <Canvas>
                 <Arrow
                   userLocation={userLocation}
@@ -120,33 +113,18 @@ const WebcamComponent = () => {
       </div>
       {userLocation && (
         <div className="relative h-screen" ref={mapRef}>
-          <Map
-            mapboxAccessToken={process.env.NEXT_PUBLIC_MAPS_KEY}
-            initialViewState={{
-              longitude: userLocation.lng,
-              latitude: userLocation.lat,
-              zoom: 16,
-            }}
-            scrollZoom={false}
-            style={{ width: "100vw", height: "100vh" }}
-            mapStyle="mapbox://styles/mapbox/standard"
-          >
-            <Marker latitude={userLocation.lat} longitude={userLocation.lng}>
-              <span className="relative flex h-4 w-4">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-4 w-4 bg-sky-500"></span>
-              </span>
-            </Marker>
-          </Map>
+          <ArMap userLocation={userLocation} />
         </div>
       )}
 
-      <button
-        onClick={requestPermission}
-        className="z-10 fixed top-2 left-1/2 transform -translate-x-1/2  mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-      >
-        Get Started! {orientation}
-      </button>
+      {!userLocation && (
+        <button
+          onClick={requestPermission}
+          className="z-10 fixed top-2 left-1/2 transform -translate-x-1/2  mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+        >
+          Get Started!
+        </button>
+      )}
     </>
   );
 };
