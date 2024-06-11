@@ -4,6 +4,8 @@ export default function Document() {
   return (
     <Html lang="en">
       <title>Drone Spotter</title>
+      <link rel="manifest" href="/manifest.json" />
+
       <script
         src="https://aframe.io/releases/1.3.0/aframe.min.js"
         defer
