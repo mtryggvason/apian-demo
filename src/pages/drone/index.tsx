@@ -4,8 +4,6 @@ import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 import Link from "next/link";
 
-// drone 1 https://prod.spline.design/qly1Ojc82Mb-1aS7/scene.splinecode
-// drone 2 'https://prod.spline.design/QnWl9cmpft2bN7gI/scene.splinecode'
 export default function App() {
   const { width, height } = useWindowSize();
   return (

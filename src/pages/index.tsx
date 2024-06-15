@@ -2,7 +2,7 @@ import { Arrow } from "@/components/Compass";
 import { DroneButton } from "@/components/icons/DroneButton";
 import { Canvas } from "@react-three/fiber";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Map, Marker } from "react-map-gl";
 import { useWindowSize } from "react-use";
 import ARView from "@/components/AR";
@@ -19,6 +19,9 @@ const WebcamComponent = () => {
   const [orientation, setOrientation] = useState(0);
   const [hasPermission, setHasPermission] = useState(false);
   const [userLocation, setUserLocation] = useState<Position | null>(null);
+  const ar = useMemo(() => {
+    return <ARView />;
+  }, []);
   const requestPermission = () => {
     getUserLocation();
     getGyroscopePermission();
@@ -64,7 +67,7 @@ const WebcamComponent = () => {
     const handleOrientation = (event: any) => {
       if (!hasPermission) return;
       const { beta } = event; // beta gives the tilt in the Y axis
-      if (parseInt(beta) > 50) {
+      if (parseInt(beta) > 30) {
         setOrientation(1);
       } else {
         setOrientation(0);
@@ -91,7 +94,7 @@ const WebcamComponent = () => {
   return (
     <>
       <div ref={canvasRef} className="relative h-[calc(100dvh)]" id="webcam">
-        {userLocation && <ARView location={userLocation} />}
+        {userLocation && ar}
         {hasPermission && userLocation && (
           <>
             <div className="absolute bottom-14  left-1/2 transform -translate-x-1/2  mt-2">

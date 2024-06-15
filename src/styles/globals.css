@@ -35,3 +35,7 @@ body {
 .mapboxgl-control-container {
   display: none;
 }
+
+video {
+  max-width: none;
+}

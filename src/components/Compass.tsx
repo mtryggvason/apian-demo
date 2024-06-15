@@ -3,13 +3,7 @@ import React, { useEffect, useState } from "react";
 import * as THREE from "three";
 import { calculateBearingAndElevation } from "@/utils/geoUtils";
 
-export function Arrow({
-  userLocation,
-  targetLocation,
-}: {
-  userLocation: any;
-  targetLocation: any;
-}) {
+export function Arrow({ userLocation, targetLocation }: any) {
   const [rotation, setRotation] = useState(new THREE.Euler(0, 0, 0));
   const [orientation, setOrientation] = useState({ bearing: 0, elevation: 0 });
 
@@ -19,12 +13,12 @@ export function Arrow({
       const target = {
         latitude: targetLocation.lat,
         longitude: targetLocation.lng,
-        altitude: targetLocation.altitude || 0, // Use 0 if no altitude is provided
+        altitude: targetLocation.altitude || 0,
       };
       const newOrientation = calculateBearingAndElevation(
         lat,
         lng,
-        altitude || 0, // Use 0 if no altitude is provided
+        altitude || 0,
         target.latitude,
         target.longitude,
         target.altitude
@@ -35,12 +29,16 @@ export function Arrow({
 
   useEffect(() => {
     const handleOrientation = (event: any) => {
-      const { alpha, beta, gamma } = event; // Rotation around the Z, X, and Y axes respectively
+      const { alpha, beta, gamma, webkitCompassHeading } = event;
+      const compassHeading = webkitCompassHeading ?? Math.abs(alpha - 360); // Fallback to alpha if webkitCompassHeading is not available
+
+      const directionToTarget = compassHeading + orientation.bearing;
+      console.log;
       setRotation(
         new THREE.Euler(
-          THREE.MathUtils.degToRad(120), // Pitch
-          THREE.MathUtils.degToRad(gamma), // Roll
-          THREE.MathUtils.degToRad(alpha + orientation.bearing) // Yaw
+          THREE.MathUtils.degToRad(0), // Pitch (tilt forward/backward)
+          THREE.MathUtils.degToRad(0), // Roll (tilt left/right)
+          THREE.MathUtils.degToRad(directionToTarget) // Yaw (heading/rotation around vertical axis)
         )
       );
     };
