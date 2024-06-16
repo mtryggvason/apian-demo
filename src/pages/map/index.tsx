@@ -1,25 +1,21 @@
 import {
-  Feature,
-  Point,
   Position,
-  Properties,
   along,
   center,
   distance,
   lineString,
   point,
-  points,
 } from "@turf/turf";
 import { useEffect, useRef, useState } from "react";
 import { addPositions } from "@/remote/locationService";
-import { useUpdatingMarkerLocation } from "@/hooks/useUpdatingMarkerLocation";
 import { useGLTF, useAnimations } from "@react-three/drei";
 
 import Map, { MapRef } from "react-map-gl";
 import { Canvas } from "react-three-map"; // if you are using MapBox
 import { useValueTransition } from "@/hooks/useValueTransition";
+import { useUpdatingMarkerLocation } from "@/hooks/useUpdatingMarkerLocation";
 
-function geoJSONToGoogleMap(point: Point): { lat: number; lng: number } {
+function geoJSONToGoogleMap(point: any): { lat: number; lng: number } {
   return { lat: point.coordinates[0], lng: point.coordinates[1] };
 }
 
