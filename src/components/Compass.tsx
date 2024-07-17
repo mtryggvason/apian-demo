@@ -9,7 +9,7 @@ export function Arrow({ userLocation, targetLocation }: any) {
 
   useEffect(() => {
     if (userLocation && targetLocation) {
-      const { lat, lng, altitude } = userLocation;
+      const { lat, lon, altitude } = userLocation;
       const target = {
         latitude: targetLocation.lat,
         longitude: targetLocation.lng,
@@ -17,7 +17,7 @@ export function Arrow({ userLocation, targetLocation }: any) {
       };
       const newOrientation = calculateBearingAndElevation(
         lat,
-        lng,
+        lon,
         altitude || 0,
         target.latitude,
         target.longitude,

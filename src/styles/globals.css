@@ -18,7 +18,6 @@
 
 html,
 body {
-  overflow: scroll !important;
 }
 .mapboxgl-marker {
   opacity: 1;
@@ -38,4 +37,141 @@ body {
 
 video {
   max-width: none;
+}
+
+/*
+	Based upon Jakub Hampl's "Designing a departures board with CSS3".
+	http://gampleman.eu/post/1488470623/designing-a-departures-board-with-css3
+*/
+
+.departure-board {
+  box-sizing: content-box;
+  transform-origin: top left;
+  display: inline-block;
+  line-height: 1.3em;
+  background: rgb(30, 30, 30);
+  border-radius: 0.21em;
+  color: #eee;
+  font-family: Helvetica;
+}
+
+.departure-board span.letter {
+  display: inline-block;
+  width: 1em;
+  margin: 0 0.1em;
+  height: 1.3em;
+  text-align: center;
+  position: relative;
+  background-image: url(/cell_background.png);
+  background-size: contain;
+  background-position: center;
+
+  /*
+  box-shadow: inset 0 -1px 0 rgba(50, 50, 50, 0.7),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.7), inset 2px 0px 4px rgba(0, 0, 0, 0.9),
+    inset -2px 0px 4px rgba(0, 0, 0, 0.9), 0 1px 0px rgba(255, 255, 255, 0.2);
+
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(30, 30, 30, 1) 5%
+  );
+  */
+}
+
+.departure-board .split {
+  border-top: 0.07em solid rgba(0, 0, 0, 0.4);
+  border-bottom: 0.07em solid rgba(255, 255, 255, 0.08);
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 0.62em;
+  display: block;
+  z-index: 2;
+}
+
+.departure-board span.flap {
+  display: block;
+  position: absolute;
+  top: 0em;
+  width: 1em;
+  height: 0.65em;
+  margin: 0;
+  overflow: hidden;
+}
+
+.departure-board span.text {
+  width: 100%;
+}
+
+.departure-board span.bottom {
+  top: 0.65em;
+}
+
+.departure-board span.bottom span.text {
+  position: relative;
+  top: -0.65em;
+}
+
+.flap.falling .text {
+  transform: translateY(10px);
+}
+
+.flap.falling.in .text {
+  transform: translateY(0.03em);
+  transition-timing-function: ease-in;
+}
+
+.flap.falling.half .text {
+  transform: translateY(-0.03em);
+}
+
+.flap.falling.out {
+  opacity: 0;
+}
+
+.departure-board span.flap.falling span.text {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-top: 0.03em solid #444;
+  border-bottom: 0.03em solid #444;
+  background: #000;
+  position: relative;
+  width: 100%;
+  display: block;
+  transition: transform linear 0.02s;
+  will-change: transform, opacity;
+}
+
+@keyframes grow {
+  from {
+    transform: scale(1) translate(0, 0);
+  }
+  to {
+    transform: scale(0.25) translate(20px, 20px);
+  }
+}
+
+@keyframes scrollUp {
+  from {
+    transform: translateY(-30vh);
+  }
+  to {
+    transform: translateY(0vh);
+  }
+}
+
+.scroll {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  transform-origin: top left;
+  animation: grow linear;
+  animation-timeline: scroll(root block);
+}
+
+.scroll-up {
+  animation: scrollUp linear;
+  animation-timeline: scroll(root block);
 }

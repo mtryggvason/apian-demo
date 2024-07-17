@@ -14,6 +14,7 @@ import Map, { MapRef } from "react-map-gl";
 import { Canvas } from "react-three-map"; // if you are using MapBox
 import { useValueTransition } from "@/hooks/useValueTransition";
 import { useUpdatingMarkerLocation } from "@/hooks/useUpdatingMarkerLocation";
+import { ApianMap } from "@/components/maps/ApianMap";
 
 function geoJSONToGoogleMap(point: any): { lat: number; lng: number } {
   return { lat: point.coordinates[0], lng: point.coordinates[1] };
@@ -51,8 +52,8 @@ export default function Page({ endpoints = LOCATIONS }) {
   const [route, setRoute] = useState<any>([]);
   const map = useRef<MapRef>(null);
   const location = useUpdatingMarkerLocation(route);
-  const lat = useValueTransition(location.lat, 1000);
-  const lng = useValueTransition(location.lng, 1000);
+  const lat = useValueTransition({ inputValue: location.lat, duration: 1000 });
+  const lng = useValueTransition({ inputValue: location.lng, duration: 1000 });
   useEffect(() => {
     async function initRoute() {
       const locationsArray = endpoints.map((location) =>
@@ -75,7 +76,7 @@ export default function Page({ endpoints = LOCATIONS }) {
     }
   }, [map, location, lat, lng]);
   return (
-    <Map
+    <ApianMap
       ref={map}
       antialias
       mapboxAccessToken={process.env.NEXT_PUBLIC_MAPS_KEY}
@@ -95,14 +96,12 @@ export default function Page({ endpoints = LOCATIONS }) {
           <meshStandardMaterial color="hotpink" />
         </mesh>
       </Canvas>
-    </Map>
+    </ApianMap>
   );
 }
 
 function SpliceElement({ path }: { path: string }) {
   const group = useRef();
   const { scene, animations } = useGLTF(path);
-  const { actions, mixer } = useAnimations(animations, group);
-
-  return <primitive scale={2} args={[10, 10, 10]} object={scene} />;
+  return <primitive scale={4} args={[10, 10, 10]} object={scene} />;
 }
