@@ -94,7 +94,7 @@ export function DeliveryTracker({}) {
         {hospitalMarkers}
       </TransferTrackingMap>
       {transfer && (
-        <div className="absolute bottom-20 left-20">
+        <div className="absolute bottom-20 md:left-20 md:right-auto left-0 right-0 w-[350px] m-auto ">
           <DeliveryTrackerInfo
             key={transfer.code}
             transfer={transferToTransferDetail(transfer) as any}

@@ -1,22 +1,14 @@
-import { Arrow } from "@/components/Compass";
-import { DroneButton } from "@/components/icons/DroneButton";
-import { Canvas } from "@react-three/fiber";
-import Link from "next/link";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import ARView from "@/components/AR";
-import { ArMap } from "@/components/ArMap";
-import { DeliveryTracker } from "@/components/maps/DeliveryTracker";
-import ButtonWithText from "@/components/buttons/ButtonWithText";
-import StyledButton from "@/components/buttons/StyledButton";
-import { Card } from "@/components/cards/Card";
-import Text from "@/components/typography/Text";
+import React, { useEffect, useState } from "react";
 import ARTracker from "@/components/ARTracker";
 import DesktopTracker from "@/pages/map2";
+import { getTransfers } from "@/utils/transferGenerator";
 
 const WebcamComponent = () => {
   const [supportsOrientation, setSupportsOrientation] = useState(false);
   const [didLoad, setDidLoad] = useState(false);
+
   useEffect(() => {
+    getTransfers();
     if (window.DeviceOrientationEvent && "ontouchstart" in window) {
       setSupportsOrientation(true);
     }

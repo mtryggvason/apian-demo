@@ -16,7 +16,6 @@ import { useInterval } from "usehooks-ts";
 
 export function DepartureBoard({}) {
   const [render, setRender] = useState(false);
-
   useInterval(() => {
     setRender((r) => !r);
   }, 1000);
@@ -55,7 +54,7 @@ export function DepartureBoard({}) {
     <div className="p-4  min-h-screen w-screen bg-board-black border-black border-4 overflow-hidden">
       <APIANIcon className="w-[150px] mb-4"></APIANIcon>
       <ScaleToFitWidth>
-        <Board rowCount={10} value={values as any} />
+        <Board rowCount={15} value={values as any} />
       </ScaleToFitWidth>
     </div>
   );

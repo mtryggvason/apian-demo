@@ -9,6 +9,10 @@ import StyledButton from "@/components/buttons/StyledButton";
 import { Card } from "@/components/cards/Card";
 import Text from "@/components/typography/Text";
 import { simpleCoord } from "@/lib/types/coordinates";
+import { distance } from "@turf/turf";
+import { simpleCoordToPoint } from "@/lib/mapHelpers";
+import { KILOMETERS } from "@/lib/constants/unitConstant";
+import { getClosestTracking } from "@/utils/transferGenerator";
 
 export const ARTracker = () => {
   const canvasRef = useRef<any>();
@@ -88,37 +92,56 @@ export const ARTracker = () => {
     }
   }, [orientation]);
 
+  let unit = "KM";
+  const drone = userLocation ? getClosestTracking(userLocation) : null;
+  console.log(drone);
+  let distanceFromDrone = userLocation
+    ? distance(
+        simpleCoordToPoint(userLocation),
+        simpleCoordToPoint(drone?.tracking?.current_position!),
+        { units: KILOMETERS }
+      )
+    : 0;
+  if (distanceFromDrone < 1) {
+    distanceFromDrone = distanceFromDrone * 1000;
+    unit = "M";
+  }
   return (
     <>
       <div ref={canvasRef} className="relative h-[calc(100dvh)]" id="webcam">
         {userLocation && ar}
         {hasPermission && userLocation && (
           <>
-            <div className="absolute bottom-[100px]  left-1/2 transform -translate-x-1/2  mt-2">
+            <div className="absolute bottom-[100px] flex left-1/2 transform -translate-x-1/2  mt-2 flex-col">
               <Canvas>
                 <Arrow
                   userLocation={userLocation}
                   targetLocation={{ lat: 48.1858, lng: 16.3128 }}
                 />
               </Canvas>
+              <div className="bg-apian-yellow p-2 rounded-md text-center">
+                <Text textSize="h2Bold">
+                  Distance to drone: {distanceFromDrone.toFixed(1)} {unit}
+                </Text>
+              </div>
+              <Link
+                href="/drone"
+                className="shadow-sm bottom-2 block mx-auto mt-4 active:invert"
+              >
+                <DroneButton />
+              </Link>
             </div>
-            <Link
-              href="/drone"
-              className="absolute shadow-sm bottom-2 left-1/2 transform -translate-x-1/2  mt-2 active:invert"
-            >
-              <DroneButton />
-            </Link>
           </>
         )}
       </div>
       {!userLocation && (
-        <Card className="absolute left-0 right-0 top-0 bottom-0 text-center inline-block p-4 max-w-[350px] h-[120px] m-auto">
-          <Text>
-            To use the AR Tracking Capabilities we need to access your location
+        <Card className="absolute left-0 right-0 top-0 bottom-0 text-center inline-block p-4 max-w-[350px] h-[180px] m-auto">
+          <Text textSize="h2">
+            To use the AR tracking capabilities we need to access your location
             and camera!
           </Text>
           <StyledButton
-            size="smRoundedFull"
+            size="xsRoundedMd"
             className="my-4"
             onClick={requestPermission}
           >
