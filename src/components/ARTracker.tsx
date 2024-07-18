@@ -13,8 +13,13 @@ import { distance } from "@turf/turf";
 import { simpleCoordToPoint } from "@/lib/mapHelpers";
 import { KILOMETERS } from "@/lib/constants/unitConstant";
 import { getClosestTracking } from "@/utils/transferGenerator";
+import { useInterval } from "usehooks-ts";
 
 export const ARTracker = () => {
+  const [render, setRender] = useState(false);
+  useInterval(() => {
+    setRender((r) => !r);
+  }, 1000);
   const canvasRef = useRef<any>();
   const mapRef = useRef<any>();
   const [orientation, setOrientation] = useState(0);
