@@ -1,9 +1,26 @@
-import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Sampler, start } from "tone";
 import { useInterval } from "usehooks-ts";
 const LETTERS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,':()&!?+-’";
 const DROP_TIME = 100;
 
 const Letter = ({ letter, index }: { letter: string; index: number }) => {
+  /*
+  const sampleRef = useRef<null | Sampler>(null);
+  const [samplerLoaded, setSamplerLoaded] = useState(false);
+  useEffect(() => {
+    sampleRef.current = new Sampler({ A1: "/click.m4a" }, () => {
+      setSamplerLoaded(true);
+    }).toDestination();
+  }, []);
+  */
+
   const [currentValue, setCurrentValue] = useState("");
   const [fallingValue, setFallingValue] = useState("");
   const indexRef = useRef(0);
@@ -19,6 +36,11 @@ const Letter = ({ letter, index }: { letter: string; index: number }) => {
     const elapsed = timestamp - lastUpdateTimeRef.current!;
 
     if (elapsed >= DROP_TIME) {
+      /*
+      if (samplerLoaded) {
+        //sampleRef.current?.triggerAttackRelease("C0", 20);
+      }
+        */
       setFallingFlapClass("in");
       const oldValue = LETTERS.charAt(indexRef.current);
       const newValue = LETTERS.charAt((indexRef.current + 1) % LETTERS.length);
@@ -111,7 +133,12 @@ export const Board = ({
   }, [value, minLetters]);
 
   return (
-    <div className="departure-board">
+    <div
+      className="departure-board"
+      onClick={() => {
+        start();
+      }}
+    >
       {rows.map((row, rIndex) => (
         <div key={rIndex} className="row">
           {row.map((letter: string, index: number) =>

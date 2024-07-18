@@ -1,4 +1,13 @@
-export const hospitals: any[] = [
+import { simpleCoord } from "@/lib/types/coordinates";
+
+export interface Hospital {
+  name: string;
+  code: string;
+  coordinates: simpleCoord;
+  address: string;
+}
+
+export const hospitals: Hospital[] = [
   {
     name: "Guy's Hospital",
     code: "86933b67-3685-41ce-9da9-6e8a2987e1bc",
