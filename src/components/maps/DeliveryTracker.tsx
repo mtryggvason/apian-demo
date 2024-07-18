@@ -27,7 +27,7 @@ export function DeliveryTracker({}) {
     if (code) {
       setHospitalCode(null);
     }
-  }, [code]);
+  }, [code, setHospitalCode]);
   const [render, setRender] = useState(false);
   useInterval(() => {
     setRender((r) => !r);
