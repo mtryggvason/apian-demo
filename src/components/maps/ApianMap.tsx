@@ -29,7 +29,7 @@ const MapWrapper = (
     },
     ...props
   }: ApianMapProps,
-  ref: React.Ref<MapRef>
+  ref: React.Ref<MapRef>,
 ) => {
   const mapRef = useRef<MapRef>(null);
   const [mapDidload, setMapDidLoad] = useState(false);
@@ -56,7 +56,6 @@ const MapWrapper = (
         />
       )}
       <Map
-        antialias
         ref={mapRef}
         initialViewState={initialViewState}
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPS_KEY}

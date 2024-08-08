@@ -15,7 +15,7 @@ const WebcamComponent = () => {
     setDidLoad(true);
   }, []);
   if (!didLoad) return null;
-  return <>{supportsOrientation ? <ARTracker /> : <DesktopTracker />}</>;
+  return <ARTracker />;
 };
 
 export default WebcamComponent;

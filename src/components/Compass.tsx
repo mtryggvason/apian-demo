@@ -21,25 +21,37 @@ export function Arrow({ userLocation, targetLocation }: any) {
         altitude || 0,
         target.latitude,
         target.longitude,
-        target.altitude
+        target.altitude,
       );
       setOrientation(newOrientation);
     }
   }, [userLocation, targetLocation]);
 
+  const getUserHeading = (event: any) => {
+    let compassdir;
+    if (event.webkitCompassHeading) {
+      // Apple works only with this, alpha doesn't work
+      compassdir = event.webkitCompassHeading;
+    } else compassdir = event.alpha;
+    return Math.floor(compassdir);
+  };
+
   useEffect(() => {
     const handleOrientation = (event: any) => {
       const { alpha, beta, gamma, webkitCompassHeading } = event;
-      const compassHeading = webkitCompassHeading ?? Math.abs(alpha - 360); // Fallback to alpha if webkitCompassHeading is not available
+      const compassHeading = getUserHeading(event); // Fallback to alpha if webkitCompassHeading is not available
 
-      const directionToTarget = compassHeading + orientation.bearing;
-      console.log;
+      // Calculate the bearing to the target
+
+      // Calculate the direction to the target relative to the current heading
+      const directionToTarget = compassHeading - orientation.bearing;
+
       setRotation(
         new THREE.Euler(
           THREE.MathUtils.degToRad(0), // Pitch (tilt forward/backward)
           THREE.MathUtils.degToRad(0), // Roll (tilt left/right)
-          THREE.MathUtils.degToRad(directionToTarget) // Yaw (heading/rotation around vertical axis)
-        )
+          THREE.MathUtils.degToRad(directionToTarget), // Yaw (heading/rotation around vertical axis)
+        ),
       );
     };
 
