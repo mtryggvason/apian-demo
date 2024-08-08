@@ -98,12 +98,13 @@ const Letter = ({
       className="letter"
       style={{ width: `${Math.min(maxAmountOfLetters, 10)}em` }}
     >
-      <span className="flap bottom">
-        <span className="text">{fallingValue}</span>
-      </span>
       <span className="flap top">
         <span className="text">{currentValue}</span>
       </span>
+      <span className="flap bottom">
+        <span className="text">{fallingValue}</span>
+      </span>
+
       <span className="split" />
       <span className={`flap falling ${fallingFlapClass}`}>
         {fallingValue && <span className="text">{fallingValue}</span>}

@@ -93,7 +93,6 @@ video {
 
 .departure-board span.flap {
   display: block;
-  position: absolute;
   top: 0em;
   min-width: 1em;
   height: 0.65em;
@@ -116,6 +115,9 @@ video {
   top: -0.65em;
 }
 
+.flap.falling {
+  position: absolute;
+}
 .flap.falling .text {
   transform: translateY(10px);
 }
