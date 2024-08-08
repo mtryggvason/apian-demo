@@ -6,21 +6,27 @@ import React, {
   useState,
 } from "react";
 import { Sampler, start } from "tone";
-import { useInterval } from "usehooks-ts";
-const LETTERS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,':()&!?+-’";
+import { useDebounceCallback, useInterval } from "usehooks-ts";
+export const LETTERS =
+  " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,':()&!?+-’".split("");
+export const NUMBERS = " 0123456789.,':()&!?+-’";
+
 const DROP_TIME = 100;
 
-const Letter = ({ letter, index }: { letter: string; index: number }) => {
-  /*
-  const sampleRef = useRef<null | Sampler>(null);
-  const [samplerLoaded, setSamplerLoaded] = useState(false);
-  useEffect(() => {
-    sampleRef.current = new Sampler({ A1: "/click.m4a" }, () => {
-      setSamplerLoaded(true);
-    }).toDestination();
-  }, []);
-  */
+export interface Slot {
+  value: string;
+  options: Array<string>;
+}
 
+const Letter = ({
+  value,
+  index,
+  onFlip,
+}: {
+  value: Slot;
+  index: number;
+  onFlip?: () => void;
+}) => {
   const [currentValue, setCurrentValue] = useState("");
   const [fallingValue, setFallingValue] = useState("");
   const indexRef = useRef(0);
@@ -36,23 +42,23 @@ const Letter = ({ letter, index }: { letter: string; index: number }) => {
     const elapsed = timestamp - lastUpdateTimeRef.current!;
 
     if (elapsed >= DROP_TIME) {
-      /*
-      if (samplerLoaded) {
-        //sampleRef.current?.triggerAttackRelease("C0", 20);
+      if (onFlip) {
+        onFlip();
       }
-        */
       setFallingFlapClass("in");
-      const oldValue = LETTERS.charAt(indexRef.current);
-      const newValue = LETTERS.charAt((indexRef.current + 1) % LETTERS.length);
-      setFallingValue(oldValue);
-      setCurrentValue(newValue);
-      indexRef.current = (indexRef.current + 1) % LETTERS.length;
+      const oldValue = value.options.at(indexRef.current);
+      const newValue = value.options.at(
+        (indexRef.current + 1) % value.options.length,
+      );
+      setFallingValue(oldValue!);
+      setCurrentValue(newValue!);
+      indexRef.current = (indexRef.current + 1) % value.options.length;
       setTimeout(() => {
         setFallingFlapClass("half");
       }, DROP_TIME / 2);
 
       if (indexRef.current === stopAtRef.current) {
-        setFallingValue(newValue);
+        setFallingValue(newValue!);
         setTimeout(() => {
           setFallingFlapClass("out");
         }, DROP_TIME / 2);
@@ -69,20 +75,29 @@ const Letter = ({ letter, index }: { letter: string; index: number }) => {
   };
 
   const setValue = (value: any) => {
-    stopAtRef.current = LETTERS.indexOf(value);
+    stopAtRef.current = value.options.indexOf(value.value);
     if (stopAtRef.current! < 0) stopAtRef.current = 0;
     if (!rafRef.current && indexRef.current !== stopAtRef.current) spin(false);
   };
 
   useLayoutEffect(() => {
     setTimeout(() => {
-      setValue(letter);
-    }, 100 * index);
+      const newStop = value.options.indexOf(value.value);
+      if (newStop !== stopAtRef.current) {
+        setValue(value);
+      }
+    }, 300 * index);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [letter]);
+  }, [value]);
 
+  const maxAmountOfLetters = value.options.reduce((prev, option) => {
+    return Math.max(option.length, prev);
+  }, 1);
   return (
-    <span className="letter">
+    <span
+      className="letter"
+      style={{ width: `${Math.min(maxAmountOfLetters, 10)}em` }}
+    >
       <span className="flap bottom">
         <span className="text">{fallingValue}</span>
       </span>
@@ -99,14 +114,28 @@ const Letter = ({ letter, index }: { letter: string; index: number }) => {
 
 export const Board = ({
   rowCount = 10,
-  letterCount = 20,
+  letterCount = 8,
   value = [],
 }: {
   rowCount?: number;
   letterCount?: number;
-  value: Array<string>;
+  value: Array<Array<Slot>>;
 }) => {
-  const longestRow = value.reduce((prev, current: string) => {
+  const sampleRef = useRef<null | Sampler>(null);
+  const [samplerLoaded, setSamplerLoaded] = useState(false);
+  useEffect(() => {
+    sampleRef.current = new Sampler({ A1: "/click.m4a" }, () => {
+      setSamplerLoaded(true);
+    }).toDestination();
+  }, []);
+
+  const debouncedTriggerSample = useDebounceCallback(() => {
+    if (samplerLoaded) {
+      sampleRef.current?.triggerAttackRelease("G1", 30);
+    }
+  }, 50);
+
+  const longestRow = value.reduce((prev, current: Array<any>) => {
     return Math.max(prev, current.length);
   }, 0);
 
@@ -115,22 +144,24 @@ export const Board = ({
     if (visibleRows < rowCount) {
       setVisibleRows((rows) => rows + 1);
     }
-  }, 3000);
+  }, 300);
   const minLetters = Math.max(longestRow, letterCount);
-
   const appendedValues = [...value];
   while (appendedValues.length < rowCount) {
-    appendedValues.push(" ");
+    appendedValues.push([]);
   }
   const rows = useMemo(() => {
-    return appendedValues.map((row: string) => {
-      const letters = row.toUpperCase().split("");
+    return appendedValues.map((row: Array<Slot>) => {
+      const letters = row;
       while (letters.length < minLetters) {
-        letters.push(" ");
+        letters.push({
+          value: "",
+          options: [],
+        });
       }
       return letters;
     });
-  }, [value, minLetters]);
+  }, [value]);
 
   return (
     <div
@@ -141,16 +172,21 @@ export const Board = ({
     >
       {rows.map((row, rIndex) => (
         <div key={rIndex} className="row">
-          {row.map((letter: string, index: number) =>
+          {row.map((value: Slot, columnIndex: number) =>
             rIndex < visibleRows ? (
               <Letter
-                key={rIndex + " " + index}
-                letter={letter}
-                index={index}
+                key={rIndex + " " + columnIndex}
+                value={value}
+                index={columnIndex}
               />
             ) : (
-              <Letter key={rIndex + " " + index} letter={" "} index={index} />
-            )
+              <Letter
+                onFlip={debouncedTriggerSample}
+                key={rIndex + " " + columnIndex}
+                value={{ value: "", options: [] }}
+                index={columnIndex}
+              />
+            ),
           )}
         </div>
       ))}

@@ -1,4 +1,4 @@
-import { DepartureBoard } from "@/components/DepartureBoard2";
+import { DepartureBoard } from "@/components/DepartureBoard";
 
 function DesktopTracker({}) {
   return (

@@ -4,6 +4,7 @@ export interface Hospital {
   name: string;
   code: string;
   coordinates: simpleCoord;
+  shortName: string;
   address: string;
 }
 
@@ -12,36 +13,42 @@ export const hospitals: Hospital[] = [
     name: "Guy's Hospital",
     code: "86933b67-3685-41ce-9da9-6e8a2987e1bc",
     coordinates: { lat: 51.50254, lon: -0.08788 },
+    shortName: "Guy's",
     address: "London",
   },
   {
     name: "St Thomas' Hospital",
     code: "782bdf13-8f43-40e4-bfb2-8d7d7c1efc4f",
     coordinates: { lat: 51.4984, lon: -0.11832 },
+    shortName: "St Thomas",
     address: "London",
   },
   {
     name: "Royal London Hospital",
     code: "99f8c5b6-65e2-4b5f-a3c9-9e9f7a5b2e88",
     coordinates: { lat: 51.52028, lon: -0.05844 },
+    shortName: "Royal London",
     address: "London",
   },
   {
     name: "King's College Hospital",
     code: "ad1a2f2b-2d49-4fda-b22b-3f1e223aef0a",
     coordinates: { lat: 51.46826, lon: -0.08949 },
+    shortName: "King's Col.",
     address: "London",
   },
   {
     name: "St Mary's Hospital",
     code: "c45776d3-1c5d-4d67-92a1-e8c9d8b1a934",
     coordinates: { lat: 51.51752, lon: -0.17447 },
+    shortName: "St Mary's",
     address: "London",
   },
   {
     name: "University College Hospital",
     code: "f1a1e7f3-3c2a-4f2e-8838-f8b3c7d3f7d7",
     coordinates: { lat: 51.52458, lon: -0.13372 },
+    shortName: "Univ. College",
     address: "London",
   },
   /*
@@ -69,7 +76,7 @@ export const hospitals: Hospital[] = [
 export function getHospital(previousCode: string | null = null): any {
   // Filter out the previous hospital
   const filteredHospitals = hospitals.filter(
-    (hospital) => hospital.code !== previousCode
+    (hospital) => hospital.code !== previousCode,
   );
 
   // Select a random hospital from the filtered list

@@ -48,7 +48,7 @@ video {
   box-sizing: content-box;
   transform-origin: top left;
   display: inline-block;
-  line-height: 1.3em;
+  line-height: 1.2em;
   background: rgb(30, 30, 30);
   border-radius: 0.21em;
   color: #eee;
@@ -57,14 +57,15 @@ video {
 
 .departure-board span.letter {
   display: inline-block;
-  width: 1em;
+  min-width: 1em;
   margin: 0 0.1em;
-  height: 1.3em;
+  height: 1.2em;
   text-align: center;
   position: relative;
   background-image: url(/cell_background.png);
-  background-size: contain;
+  background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 
   /*
   box-shadow: inset 0 -1px 0 rgba(50, 50, 50, 0.7),
@@ -80,12 +81,12 @@ video {
 }
 
 .departure-board .split {
-  border-top: 0.07em solid rgba(0, 0, 0, 0.4);
-  border-bottom: 0.07em solid rgba(255, 255, 255, 0.08);
+  border-top: 0.02em solid #00000066;
+  border-bottom: 0.1em solid #ffffff14;
   position: absolute;
   width: 100%;
   left: 0;
-  top: 0.62em;
+  top: 0.55em;
   display: block;
   z-index: 2;
 }
@@ -94,10 +95,12 @@ video {
   display: block;
   position: absolute;
   top: 0em;
-  width: 1em;
+  min-width: 1em;
   height: 0.65em;
   margin: 0;
   overflow: hidden;
+  left: 0;
+  right: 0;
 }
 
 .departure-board span.text {
@@ -118,7 +121,7 @@ video {
 }
 
 .flap.falling.in .text {
-  transform: translateY(0.03em);
+  transform: translate(0.03em);
   transition-timing-function: ease-in;
 }
 
@@ -131,15 +134,12 @@ video {
 }
 
 .departure-board span.flap.falling span.text {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
   border-top: 0.03em solid #444;
   border-bottom: 0.03em solid #444;
   background: #000;
   position: relative;
   width: 100%;
   display: block;
-  transition: transform linear 0.02s;
   will-change: transform, opacity;
 }
 

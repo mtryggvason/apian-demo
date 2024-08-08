@@ -34,30 +34,33 @@ export function DepartureBoard({}) {
 
   if (isLoading) return null;
 
-  const hospitalOptions = hospitals.map((hospital) => hospital.name);
-  const longesHospitalName = hospitals.reduce((prev, hospital) => {
-    return Math.max(prev, hospital.shortName.length);
-  }, 0);
+  const hospitalOptions = hospitals.map((hospital) =>
+    hospital.shortName.toUpperCase(),
+  );
+  const values = transfers
+    ?.map((transfer: any) => {
+      const transferDetail = transferToTransferDetail(transfer);
+      return [
+        {
+          value: transfer.source_location.shortName.toUpperCase(),
+          options: hospitalOptions,
+        },
+        {
+          value: transfer.destination_location.shortName.toUpperCase(),
+          options: hospitalOptions,
+        },
+        ...getArrivalTimeAsString(transferDetail as unknown as TransferDetails)
+          .replace("est.", "")
+          .split("")
+          .map((letter) => ({
+            value: letter.toUpperCase(),
+            options: LETTERS,
+          })),
+      ];
+    })
+    .slice(0, 10);
 
-  const values = transfers?.map((transfer: any) => {
-    const transferDetail = transferToTransferDetail(transfer);
-    return `${transfer.source_location.shortName.padEnd(
-      longesHospitalName,
-      " ",
-    )} - ${transfer.destination_location.shortName.padEnd(
-      longesHospitalName,
-      " ",
-    )} ${getArrivalTimeAsString(
-      transferDetail as unknown as TransferDetails,
-    ).replace("est. ", "")}  IN-FLIGHT`
-      .split("")
-      .map((letter) => ({
-        value: letter.toUpperCase(),
-        options: LETTERS,
-      }));
-  });
   console.log(values);
-
   return (
     <div className="p-4  min-h-screen w-screen bg-board-black border-black border-4 overflow-hidden">
       <APIANIcon className="w-[150px] mb-4"></APIANIcon>
