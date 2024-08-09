@@ -177,7 +177,7 @@ export const Board = ({
       }}
     >
       {rows.map((row, rIndex) => (
-        <div key={rIndex} className="row">
+        <div key={rIndex} className="row whitespace-nowrap">
           {row.map((value: Slot, columnIndex: number) =>
             rIndex < visibleRows ? (
               <Letter

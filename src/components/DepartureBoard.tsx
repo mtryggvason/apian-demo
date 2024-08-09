@@ -159,37 +159,39 @@ export function DepartureBoard({}) {
   });
 
   return (
-    <div className="p-4  min-h-screen w-screen bg-board-black border-black border-4 overflow-hidden">
-      <APIANIcon className="w-[200px] mb-4"></APIANIcon>
+    <div className="min-h-screen w-screen bg-board-black overflow-x-hidden  p-4">
+      <APIANIcon className="w-[200px] mb-4 ml-4"></APIANIcon>
       <ScaleToFitWidth>
-        <div className="flex flex-row align-top">
-          <div className="mr-2">
-            <h2 className="text-white uppercase">From</h2>
-            <Board
-              letterCount={longestSourceName}
-              rowCount={10}
-              value={startLocations as any}
-            />
-          </div>
-          <div className="mr-2">
-            <h2 className="text-white uppercase">To</h2>
-            <Board
-              letterCount={longesHospitalName}
-              rowCount={10}
-              value={endLocations as any}
-            />
-          </div>
-          <div className="mr-2">
-            <h2 className="text-white uppercase">Dep. Time</h2>
-            <Board
-              letterCount={5}
-              rowCount={10}
-              value={departureTimes as any}
-            />
-          </div>
-          <div>
-            <h2 className="text-white uppercase">Status</h2>
-            <Board letterCount={3} rowCount={10} value={statuses as any} />
+        <div className=" bg-board-black px-4  ">
+          <div className="flex flex-row align-top">
+            <div className="mr-2">
+              <h2 className="text-white uppercase">From</h2>
+              <Board
+                letterCount={longestSourceName}
+                rowCount={10}
+                value={startLocations as any}
+              />
+            </div>
+            <div className="mr-2">
+              <h2 className="text-white uppercase">To</h2>
+              <Board
+                letterCount={longesHospitalName}
+                rowCount={10}
+                value={endLocations as any}
+              />
+            </div>
+            <div className="mr-2">
+              <h2 className="text-white uppercase">Dep. Time</h2>
+              <Board
+                letterCount={5}
+                rowCount={10}
+                value={departureTimes as any}
+              />
+            </div>
+            <div>
+              <h2 className="text-white uppercase">Status</h2>
+              <Board letterCount={3} rowCount={10} value={statuses as any} />
+            </div>
           </div>
         </div>
       </ScaleToFitWidth>
