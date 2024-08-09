@@ -19,16 +19,14 @@ import { Marker } from "react-map-gl";
 import { ArrowMarker } from "@/components/icons/ArrowMarker";
 import mqtt from "mqtt";
 import { Drone } from "@/components/icons/Drone";
+import { MapIcon } from "@/components/icons/MapIcon";
+import SlidePanel from "@/components/popovers/SlidePanel";
 
 interface simpleCoordWithHeading extends simpleCoord {
   heading?: number | null;
 }
 
 export const ARTracker = () => {
-  const [render, setRender] = useState(false);
-  useInterval(() => {
-    setRender((r) => !r);
-  }, 1000);
   const canvasRef = useRef<any>();
   const mapRef = useRef<any>();
   const [hasPermission, setHasPermission] = useState(false);
@@ -37,10 +35,11 @@ export const ARTracker = () => {
   const clientRef = useRef<any>(null);
   const [heading, setHeading] = useState(0);
   const [dronePosition, setDronePosition] = useState<simpleCoord | null>(null);
-
+  const [showMap, setShowMap] = useState(false);
   const ar = useMemo(() => {
     return <ARView />;
   }, []);
+
   const requestPermission = () => {
     getUserLocation();
     getGyroscopePermission();
@@ -127,6 +126,14 @@ export const ARTracker = () => {
           {userLocation && ar}
           {hasPermission && userLocation && (
             <>
+              <div className="absolute top-[25px] right-[25px]">
+                <StyledButton
+                  onClick={() => setShowMap(true)}
+                  size="mdRoundedMdSquare"
+                >
+                  <MapIcon className="w-[14px] h-auto"></MapIcon>
+                </StyledButton>
+              </div>
               <div className="absolute bottom-[100px] flex left-1/2 transform -translate-x-1/2  mt-2 flex-col">
                 <Canvas>
                   <Arrow
@@ -143,12 +150,6 @@ export const ARTracker = () => {
                     Distance to drone: {distanceFromDrone.toFixed(1)} {unit}
                   </Text>
                 </div>
-                <Link
-                  href="/drone"
-                  className="shadow-sm bottom-2 block mx-auto mt-4 active:invert"
-                >
-                  <DroneButton />
-                </Link>
               </div>
             </>
           )}
@@ -169,12 +170,17 @@ export const ARTracker = () => {
           </StyledButton>
         </Card>
       )}
-      {userLocation && (
+      <SlidePanel
+        isOpen={showMap}
+        onClose={() => {
+          setShowMap(false);
+        }}
+      >
         <div className="h-screen w-screen">
           <ApianMap
             initialViewState={{
-              longitude: userLocation.lon, // Longitude of the center point
-              latitude: userLocation.lat, // Latitude of the center point
+              longitude: userLocation?.lon, // Longitude of the center point
+              latitude: userLocation?.lat, // Latitude of the center point
               zoom: 16, // Initial zoom level
               pitch: 0, // Pitch angle
               bearing: 0, // Bearing angle
@@ -183,8 +189,8 @@ export const ARTracker = () => {
           >
             <Marker
               rotation={heading ?? 0}
-              latitude={userLocation.lat}
-              longitude={userLocation?.lon}
+              latitude={userLocation?.lat!}
+              longitude={userLocation?.lon!}
             >
               <ArrowMarker className="w-10"></ArrowMarker>
             </Marker>
@@ -198,7 +204,7 @@ export const ARTracker = () => {
             )}
           </ApianMap>
         </div>
-      )}
+      </SlidePanel>
     </>
   );
 };

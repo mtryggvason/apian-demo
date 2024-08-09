@@ -136,9 +136,9 @@ export const Board = ({
 
   const debouncedTriggerSample = useDebounceCallback(() => {
     if (samplerLoaded) {
-      sampleRef.current?.triggerAttackRelease("G1", 30);
+      sampleRef.current?.triggerAttackRelease("C2", 100);
     }
-  }, 50);
+  }, 80);
 
   const longestRow = value.reduce((prev, current: Array<any>) => {
     return Math.max(prev, current.length);
@@ -184,6 +184,7 @@ export const Board = ({
                 key={rIndex + " " + columnIndex}
                 value={value}
                 index={columnIndex}
+                onFlip={debouncedTriggerSample}
               />
             ) : (
               <Letter
