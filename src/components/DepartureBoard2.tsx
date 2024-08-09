@@ -44,10 +44,12 @@ export function DepartureBoard({}) {
         {
           value: transfer.source_location.shortName.toUpperCase(),
           options: hospitalOptions,
+          mapper: (value: any) => value,
         },
         {
           value: transfer.destination_location.shortName.toUpperCase(),
           options: hospitalOptions,
+          mapper: (value: any) => value,
         },
         ...getArrivalTimeAsString(transferDetail as unknown as TransferDetails)
           .replace("est.", "")
@@ -55,12 +57,12 @@ export function DepartureBoard({}) {
           .map((letter) => ({
             value: letter.toUpperCase(),
             options: LETTERS,
+            mapper: (value: any) => value,
           })),
       ];
     })
     .slice(0, 10);
 
-  console.log(values);
   return (
     <div className="p-4  min-h-screen w-screen bg-board-black border-black border-4 overflow-hidden">
       <APIANIcon className="w-[150px] mb-4"></APIANIcon>

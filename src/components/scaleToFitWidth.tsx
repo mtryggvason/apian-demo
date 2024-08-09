@@ -7,7 +7,7 @@ export const ScaleToFitWidth = ({ children }: { children: ReactNode }) => {
     const handleResize = () => {
       if (elementRef.current) {
         const elementWidth = elementRef.current.offsetWidth;
-        const viewportWidth = document.body.clientWidth - 32;
+        const viewportWidth = document.body.clientWidth - 64;
         const newScaleFactor = viewportWidth / elementWidth;
         setScaleFactor(newScaleFactor);
       }

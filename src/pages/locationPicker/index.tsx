@@ -41,7 +41,7 @@ const LocationsPicker = function () {
       clientRef.current.subscribe("apian-drone-position");
     });
 
-    clientRef.current.on("message", (topic, message) => {
+    clientRef.current.on("message", (topic: string, message: any) => {
       // message is Buffer
       console.log(message.toString());
     });

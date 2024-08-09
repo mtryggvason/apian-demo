@@ -1,4 +1,5 @@
 import React, {
+  ReactNode,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -16,6 +17,7 @@ const DROP_TIME = 100;
 export interface Slot {
   value: string;
   options: Array<string>;
+  mapper: (value: any) => ReactNode;
 }
 
 const Letter = ({
@@ -99,15 +101,17 @@ const Letter = ({
       style={{ width: `${Math.min(maxAmountOfLetters, 10)}em` }}
     >
       <span className="flap top">
-        <span className="text">{currentValue}</span>
+        <span className="text">{value.mapper(currentValue)}</span>
       </span>
       <span className="flap bottom">
-        <span className="text">{fallingValue}</span>
+        <span className="text">{value.mapper(fallingValue)}</span>
       </span>
 
       <span className="split" />
       <span className={`flap falling ${fallingFlapClass}`}>
-        {fallingValue && <span className="text">{fallingValue}</span>}
+        {fallingValue && (
+          <span className="text">{value.mapper(fallingValue)}</span>
+        )}
       </span>
     </span>
   );
@@ -115,7 +119,7 @@ const Letter = ({
 
 export const Board = ({
   rowCount = 10,
-  letterCount = 8,
+  letterCount = 10,
   value = [],
 }: {
   rowCount?: number;
@@ -158,6 +162,7 @@ export const Board = ({
         letters.push({
           value: "",
           options: [],
+          mapper: () => "",
         });
       }
       return letters;
@@ -184,7 +189,7 @@ export const Board = ({
               <Letter
                 onFlip={debouncedTriggerSample}
                 key={rIndex + " " + columnIndex}
-                value={{ value: "", options: [] }}
+                value={{ value: "", options: [], mapper: () => "" }}
                 index={columnIndex}
               />
             ),

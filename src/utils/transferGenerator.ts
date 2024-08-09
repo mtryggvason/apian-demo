@@ -9,7 +9,7 @@ import {
 import { along, distance, length, lineString, point } from "@turf/turf";
 import { add } from "date-fns";
 import { simpleCoordToArray, simpleCoordToPoint } from "@/lib/mapHelpers";
-import { getHospital } from "@/utils/hospitals";
+import { getHospital, getSource } from "@/utils/hospitals";
 
 export const TOTAL_DURATION = 60 * 10 * 1000;
 
@@ -46,39 +46,40 @@ function generateUUID() {
 let transfers: Array<Transfer> = [];
 let trackings: Array<TransferTrackingResponse> = [];
 function generateObject(): Transfer {
-  const senderHospital = getHospital();
-  const receiverHospital = getHospital(senderHospital.code);
+  const senderHospital = getSource();
+  const receiverHospital = getHospital(senderHospital.address);
 
   const distance = length(
     lineString([
       simpleCoordToPoint(senderHospital.coordinates) as any,
       simpleCoordToPoint(receiverHospital.coordinates),
     ]),
-    { units: "kilometers" }
+    { units: "kilometers" },
   );
   const now = new Date().toISOString();
   const scheduledEarliestSourceDepartureTime = generateRandomDate(
     1,
-    10
+    10,
   ).toISOString();
   const scheduledLatestSourceDepartureTime = new Date(
-    new Date(scheduledEarliestSourceDepartureTime).getTime() + 30 * 60000
+    new Date(scheduledEarliestSourceDepartureTime).getTime() + 30 * 60000,
   ).toISOString();
   const actualSourceDepartureTime = add(new Date(), {
     minutes: -Math.random() * 2,
   }).toISOString();
 
   const scheduledEarliestDestinationArrivalTime = new Date(
-    new Date(scheduledEarliestSourceDepartureTime).getTime() + 5 * 60000
+    new Date(scheduledEarliestSourceDepartureTime).getTime() + 5 * 60000,
   ).toISOString();
   const scheduledLatestDestinationArrivalTime = new Date(
-    new Date(scheduledEarliestDestinationArrivalTime).getTime() + 30 * 60000
+    new Date(scheduledEarliestDestinationArrivalTime).getTime() + 30 * 60000,
   ).toISOString();
   const estimatedEarliestDestinationArrivalTime = add(new Date(), {
     minutes: distance * 2,
   }).toISOString();
-  const actualDestinationArrivalTime = undefined;
-
+  const actualDestinationArrivalTime = add(new Date(), {
+    minutes: distance * 2,
+  });
   return {
     code: generateUUID(),
     status: "140",
@@ -117,7 +118,7 @@ function generateObject(): Transfer {
 }
 
 export const getTransfers = () => {
-  while (transfers.length < 20) {
+  while (transfers.length < 10) {
     transfers.push(generateObject());
   }
   transfers.forEach((transfer) => {
@@ -153,10 +154,9 @@ export function filterPastTransfers(transfers: Array<Transfer>) {
     const transferClone = { ...transfer };
     if (transfer.destination_location.actual_destination_arrival_time) {
       const actualDestinationArrivalTime = new Date(
-        transfer.destination_location.actual_destination_arrival_time
+        transfer.destination_location.actual_destination_arrival_time,
       );
-      transferClone.status =
-        ApianTransferStatusCodes.TRANSFER_COMPLETED.toString();
+      transferClone.status = ApianTransferStatusCodes.TRANSFER_COMPLETED;
     }
     return transferClone;
   });
@@ -167,7 +167,7 @@ function calculatePosition(
   totalDuration: number,
   startLocation: simpleCoord,
   endLocation: simpleCoord,
-  currentTime: number
+  currentTime: number,
 ) {
   // Calculate the total duration and elapsed time in milliseconds
   let elapsedTime = currentTime - startTime;
@@ -192,11 +192,11 @@ function calculatePosition(
 export const getPercentageComplete = (transfer: TransferDetails) => {
   const totalDuration =
     new Date(
-      transfer.destination_location.estimated_earliest_destination_arrival_time!
+      transfer.destination_location.estimated_earliest_destination_arrival_time!,
     ).getTime() -
     new Date(transfer.source_location.actual_source_departure_time!).getTime();
   const startTime = new Date(
-    transfer.source_location.actual_source_departure_time!
+    transfer.source_location.actual_source_departure_time!,
   ).getTime();
   const currentTime = new Date().getTime();
   const elapsedTime = currentTime - startTime;
@@ -206,11 +206,11 @@ export const getPercentageComplete = (transfer: TransferDetails) => {
 export const getTimeRemaining = (transfer: TransferDetails) => {
   const totalDuration =
     new Date(
-      transfer.destination_location.estimated_earliest_destination_arrival_time!
+      transfer.destination_location.estimated_earliest_destination_arrival_time!,
     ).getTime() -
     new Date(transfer.source_location.actual_source_departure_time!).getTime();
   const startTime = new Date(
-    transfer.source_location.actual_source_departure_time!
+    transfer.source_location.actual_source_departure_time!,
   ).getTime();
   const currentTime = new Date().getTime();
   const elapsedTime = currentTime - startTime;
@@ -219,7 +219,7 @@ export const getTimeRemaining = (transfer: TransferDetails) => {
 
 export const getDistanceRemaining = (transfer: TransferDetails) => {
   const tracking = trackings.find(
-    (tracking) => tracking.code === transfer.code
+    (tracking) => tracking.code === transfer.code,
   );
 
   if (!tracking) return 0;
@@ -228,13 +228,13 @@ export const getDistanceRemaining = (transfer: TransferDetails) => {
       simpleCoordToPoint(tracking?.tracking?.current_position!) as any,
       simpleCoordToPoint(transfer.destination_location.coordinates),
     ]),
-    { units: "kilometers" }
+    { units: "kilometers" },
   );
 };
 
 const updateTracking = (
   tracking: TransferTrackingResponse,
-  transfer: Transfer
+  transfer: Transfer,
 ) => {
   if (
     new Date(transfer.source_location.actual_source_departure_time!).getTime() <
@@ -245,7 +245,7 @@ const updateTracking = (
 
   if (
     new Date(
-      transfer.destination_location.estimated_earliest_destination_arrival_time!
+      transfer.destination_location.estimated_earliest_destination_arrival_time!,
     ).getTime() < new Date().getTime()
   ) {
     tracking.status = ApianTransferStatusCodes.TRANSFER_COMPLETED;
@@ -254,14 +254,14 @@ const updateTracking = (
   const currentPosition = calculatePosition(
     new Date(transfer.source_location.actual_source_departure_time!).getTime(),
     new Date(
-      transfer.destination_location.estimated_earliest_destination_arrival_time!
+      transfer.destination_location.estimated_earliest_destination_arrival_time!,
     ).getTime() -
       new Date(
-        transfer.source_location.actual_source_departure_time!
+        transfer.source_location.actual_source_departure_time!,
       ).getTime(),
     transfer.source_location.coordinates,
     transfer.destination_location.coordinates,
-    new Date().getTime()
+    new Date().getTime(),
   );
   tracking.tracking!.current_position = {
     lon: currentPosition[0],
@@ -294,7 +294,7 @@ export const getClosestTracking = (location: simpleCoord) => {
         simpleCoordToArray(tracking.tracking?.current_position!),
         simpleCoordToArray(location),
       ]),
-      { units: "kilometers" }
+      { units: "kilometers" },
     );
     if (distance < previous) {
       trackingID = tracking.code;
@@ -340,3 +340,63 @@ export const transferToTransferDetail = (transfer: Transfer) => {
     ...transfer,
   };
 };
+
+function getNextStatus(
+  currentStatus: ApianTransferStatusCodes,
+): ApianTransferStatusCodes | null {
+  const statuses = [
+    ApianTransferStatusCodes.CREATED,
+    ApianTransferStatusCodes.PENDING,
+    ApianTransferStatusCodes.CONFIRMED_BY_OPERATOR,
+    ApianTransferStatusCodes.IN_TRANSIT_TO_DESTINATION,
+    ApianTransferStatusCodes.TRANSFER_COMPLETED,
+    // Exclude cancelled and failed statuses
+  ];
+
+  const currentIndex = statuses.indexOf(currentStatus);
+
+  if (currentIndex >= 0 && currentIndex < statuses.length - 1) {
+    return statuses[currentIndex + 1];
+  }
+
+  // Return null if there's no next status
+  return currentStatus;
+}
+
+export function updateTransferStatus(
+  transferCode: string,
+  transfers: Array<any>,
+) {
+  // Find the transfer by its code
+  const transferIndex = transfers.findIndex(
+    (transfer) => transfer.code === transferCode,
+  );
+
+  // If the transfer is found
+  if (transferIndex !== -1) {
+    const transfer = transfers[transferIndex];
+
+    // Get the next status based on the current status
+    const nextStatus = getNextStatus(transfer.status);
+
+    // If there is a next status, update the transfer's status
+    if (nextStatus !== null) {
+      // Create a new transfer object with the updated status
+      const updatedTransfer = {
+        ...transfer,
+        status: nextStatus.toString(),
+      };
+
+      // Replace the old transfer with the updated one in the new transfers array
+      const updatedTransfers = [
+        ...transfers.slice(0, transferIndex),
+        updatedTransfer,
+        ...transfers.slice(transferIndex + 1),
+      ];
+
+      // Return the new transfers array with the updated transfer
+      return updatedTransfers;
+    }
+    return transfers;
+  }
+}

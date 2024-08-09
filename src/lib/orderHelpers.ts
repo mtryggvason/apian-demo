@@ -64,22 +64,22 @@ const nextOrderDeliveryActiveStatus = [
 ];
 
 export const isOrderFlightActive = (
-  order: OrderListItem | OrderDetailItem | null
+  order: OrderListItem | OrderDetailItem | null,
 ): boolean => {
   if (!order) {
     return false;
   }
-  return nextOrderDeliveryActiveStatus.includes(+order.status);
+  return nextOrderDeliveryActiveStatus.includes(order.status);
 };
 
 export const isUpcomingOrder = (order: OrderListItem): boolean => {
   if (
     isDateStringAfterStartOfToday(
-      order.sender_location.scheduled_pickup_datetime
+      order.sender_location.scheduled_pickup_datetime,
     )
   ) {
     // orders share status with transfers
-    return upcomingTransferStatus.includes(+order.status);
+    return upcomingTransferStatus.includes(order.status);
   }
   // "yesterday" orders are never upcoming
   return false;
@@ -88,10 +88,10 @@ export const isUpcomingOrder = (order: OrderListItem): boolean => {
 export const isPreviousOrder = (order: OrderListItem): boolean => {
   if (
     isDateStringAfterStartOfToday(
-      order.sender_location.scheduled_pickup_datetime
+      order.sender_location.scheduled_pickup_datetime,
     )
   ) {
-    return !upcomingTransferStatus.includes(+order.status);
+    return !upcomingTransferStatus.includes(order.status);
   }
   // "yesterday" orders are always previous
   return true;
@@ -101,16 +101,16 @@ export const isCancellable = (order: OrderDetailItem): boolean => {
   return [
     ApianTransferStatusCodes.CREATED,
     ApianTransferStatusCodes.PENDING,
-  ].includes(+order.status);
+  ].includes(order.status);
 };
 
 export const isCompleted = (order: OrderDetailItem): boolean => {
-  return [ApianTransferStatusCodes.TRANSFER_COMPLETED].includes(+order.status);
+  return [ApianTransferStatusCodes.TRANSFER_COMPLETED].includes(order.status);
 };
 
 export const getOrderDeliveryDayString = (order: OrderListItem): string => {
   const orderDate = new Date(
-    order.recipient_location.scheduled_earliest_recipient_arrival_time!
+    order.recipient_location.scheduled_earliest_recipient_arrival_time!,
   );
   return getCasualDateFormatString(orderDate);
 };
@@ -127,7 +127,7 @@ export const getFormattedOrderTableDate = (dateString: string) => {
   } else if (isYesterday(date)) {
     return `Yesterday, ${formatWithDefaultTimeZone(
       date,
-      TwentyFourHourFormat
+      TwentyFourHourFormat,
     )}`;
   } else {
     return formatWithDefaultTimeZone(date, ShortDayMonth24HourFormat);
@@ -136,38 +136,38 @@ export const getFormattedOrderTableDate = (dateString: string) => {
 
 type OrderTime = {
   [key in ApianTransferStatusCodes]: (
-    o: OrderListItem | OrderDetailItem
+    o: OrderListItem | OrderDetailItem,
   ) => string;
 };
 
 export const OrderDurationUntilArrivalTimes: OrderTime = {
   [ApianTransferStatusCodes.CREATED]: (
-    order: OrderListItem | OrderDetailItem
+    order: OrderListItem | OrderDetailItem,
   ) =>
     getNextOrderEstimatedUntilArrivalTimeFormatted(
-      order.recipient_location.scheduled_earliest_recipient_arrival_time!
+      order.recipient_location.scheduled_earliest_recipient_arrival_time!,
     ),
   [ApianTransferStatusCodes.PENDING]: () => NO_TIME,
   [ApianTransferStatusCodes.CONFIRMED_BY_OPERATOR]: (
-    order: OrderListItem | OrderDetailItem
+    order: OrderListItem | OrderDetailItem,
   ) => {
     return getNextOrderEstimatedUntilArrivalTimeFormatted(
-      order.recipient_location.scheduled_earliest_recipient_arrival_time!
+      order.recipient_location.scheduled_earliest_recipient_arrival_time!,
     );
   },
 
   [ApianTransferStatusCodes.IN_TRANSIT_TO_DESTINATION]: (
-    order: OrderListItem | OrderDetailItem
+    order: OrderListItem | OrderDetailItem,
   ) =>
     getNextOrderEstimatedUntilArrivalTimeFormatted(
-      order.recipient_location.estimated_earliest_recipient_arrival_time!
+      order.recipient_location.estimated_earliest_recipient_arrival_time!,
     ),
   [ApianTransferStatusCodes.TRANSFER_COMPLETED]: (
-    order: OrderListItem | OrderDetailItem
+    order: OrderListItem | OrderDetailItem,
   ) => {
     return getNextOrderEstimatedUntilArrivalTimeFormatted(
       order.recipient_location.estimated_earliest_recipient_arrival_time!,
-      true
+      true,
     );
   },
   [ApianTransferStatusCodes.ORDER_CANCELLED]: () => NO_TIME,
@@ -178,7 +178,7 @@ export const OrderDurationUntilArrivalTimes: OrderTime = {
 };
 
 export const getEstimatedDurationUntilArrivalTimeAsString = (
-  order: OrderListItem | OrderDetailItem
+  order: OrderListItem | OrderDetailItem,
 ) => {
   if (order.status) {
     return OrderDurationUntilArrivalTimes[
@@ -192,48 +192,48 @@ export const getOrderScheduledArrivalTimeString = (order: OrderListItem) => {
   if (order.recipient_location.estimated_earliest_recipient_arrival_time) {
     return `est. ${formatWithDefaultTimeZone(
       order.recipient_location.estimated_earliest_recipient_arrival_time,
-      TwentyFourHourFormat
+      TwentyFourHourFormat,
     )}`;
   }
   return order.recipient_location.scheduled_earliest_recipient_arrival_time &&
     order.recipient_location.scheduled_latest_recipient_arrival_time
     ? `${formatWithDefaultTimeZone(
         order.recipient_location.scheduled_earliest_recipient_arrival_time,
-        TwentyFourHourFormat
+        TwentyFourHourFormat,
       )} - ${formatWithDefaultTimeZone(
         order.recipient_location.scheduled_latest_recipient_arrival_time,
-        TwentyFourHourFormat
+        TwentyFourHourFormat,
       )}`
     : noDataMessage;
 };
 
 export const getScheduledOrderArrival = (
-  order: OrderDetailItem | OrderListItem
+  order: OrderDetailItem | OrderListItem,
 ) => {
   if (
     !isValid(
       new Date(
-        order.recipient_location.scheduled_earliest_recipient_arrival_time!
-      )
+        order.recipient_location.scheduled_earliest_recipient_arrival_time!,
+      ),
     ) ||
     !isValid(
       new Date(
-        order.recipient_location.scheduled_latest_recipient_arrival_time!
-      )
+        order.recipient_location.scheduled_latest_recipient_arrival_time!,
+      ),
     )
   ) {
     return NO_TIME;
   }
   const earliestDepartureTime = new Date(
-    order.recipient_location.scheduled_earliest_recipient_arrival_time!
+    order.recipient_location.scheduled_earliest_recipient_arrival_time!,
   );
   const latesDepartureTime = new Date(
-    order.recipient_location.scheduled_latest_recipient_arrival_time!
+    order.recipient_location.scheduled_latest_recipient_arrival_time!,
   );
 
   const interval = `${formatWithDefaultTimeZone(
     earliestDepartureTime,
-    "HH:mm"
+    "HH:mm",
   )} - ${formatWithDefaultTimeZone(latesDepartureTime, "HH:mm")}`;
   if (isToday(earliestDepartureTime)) {
     return interval;
@@ -242,31 +242,31 @@ export const getScheduledOrderArrival = (
   }
   return `${getFormattedTableDateString(
     order.recipient_location.scheduled_earliest_recipient_arrival_time!,
-    false
+    false,
   )}${interval}`;
 };
 
 export function getOrderStatusEventDatetimeString(
   order: OrderDetailItem,
-  status: ApianTransferStatusCodes
+  status: ApianTransferStatusCodes,
 ): string | undefined {
   const historyEvent = order.status_history.find(
-    (historyItem) => historyItem.status === status.toString()
+    (historyItem) => historyItem.status === status.toString(),
   );
   return historyEvent?.status_datetime;
 }
 
 export const getOrderArrivalTimeAsString = (
-  order: OrderListItem | OrderDetailItem
+  order: OrderListItem | OrderDetailItem,
 ) => {
   return OrderArrivalTimes[order.status as unknown as ApianTransferStatusCodes](
-    order
+    order,
   );
 };
 
 export function getNextOrderEstimatedUntilArrivalTimeFormatted(
   inputDateString: string,
-  isKnownTime: boolean = false
+  isKnownTime: boolean = false,
 ): string {
   if (!inputDateString) {
     return NO_TIME;
@@ -281,41 +281,41 @@ export function getNextOrderEstimatedUntilArrivalTimeFormatted(
   } else if (isToday(inputDate)) {
     return `${isKnownTime ? "" : est}${formatWithDefaultTimeZone(
       inputDate,
-      TwentyFourHourFormat
+      TwentyFourHourFormat,
     )}`;
   } else if (isTomorrow(inputDate)) {
     return `${isKnownTime ? "" : est}Tomorrow, ${formatWithDefaultTimeZone(
       inputDate,
-      TwentyFourHourFormat
+      TwentyFourHourFormat,
     )}`;
   } else {
     return `${isKnownTime ? "" : est}${formatWithDefaultTimeZone(
       inputDate,
-      ShortDayMonth24HourFormat
+      ShortDayMonth24HourFormat,
     )}`;
   }
 }
 
 export const OrderArrivalTimes: OrderTime = {
   [ApianTransferStatusCodes.CREATED]: (
-    order: OrderListItem | OrderDetailItem
+    order: OrderListItem | OrderDetailItem,
   ) => getScheduledOrderArrival(order),
 
   [ApianTransferStatusCodes.PENDING]: () => NO_TIME,
   [ApianTransferStatusCodes.CONFIRMED_BY_OPERATOR]: (
-    order: OrderListItem | OrderDetailItem
+    order: OrderListItem | OrderDetailItem,
   ) => getScheduledOrderArrival(order),
   [ApianTransferStatusCodes.IN_TRANSIT_TO_DESTINATION]: (
-    order: OrderListItem | OrderDetailItem
+    order: OrderListItem | OrderDetailItem,
   ) =>
     getNextOrderEstimatedUntilArrivalTimeFormatted(
-      order.recipient_location.estimated_earliest_recipient_arrival_time!
+      order.recipient_location.estimated_earliest_recipient_arrival_time!,
     ),
   [ApianTransferStatusCodes.TRANSFER_COMPLETED]: (
-    order: OrderListItem | OrderDetailItem
+    order: OrderListItem | OrderDetailItem,
   ) =>
     getFormattedOrderTableDate(
-      order.destination_location.actual_destination_arrival_time!
+      order.destination_location.actual_destination_arrival_time!,
     ),
   [ApianTransferStatusCodes.ORDER_CANCELLED]: () => NO_TIME,
   [ApianTransferStatusCodes.CANCELLED_BY_OPERATOR]: () => NO_TIME,
@@ -326,14 +326,14 @@ export const OrderArrivalTimes: OrderTime = {
 
 export const findMappingsBySenderCode = (
   mappings: SenderRecipientLocationMapping[],
-  code: string
+  code: string,
 ) => {
   return mappings.find((mapping) => mapping.code === code);
 };
 
 export const checkMappingsForRecipientLocation = (
   recipient_mappings: { code: string; name: string }[],
-  code: string
+  code: string,
 ) => {
   return recipient_mappings.some((mapping) => mapping.code === code);
 };
@@ -358,7 +358,7 @@ export function getRecurringOrderDates(
   selectedPickup: Date,
   selectedCount: number,
   selectedInterval: number,
-  selectedFrequency: RecurringOrderFrequency
+  selectedFrequency: RecurringOrderFrequency,
 ): Date[] {
   const scheduledDatesList: Date[] = [];
   let scheduledDate = new Date(selectedPickup);
@@ -369,7 +369,7 @@ export function getRecurringOrderDates(
       case "HOURLY":
         scheduledDate = addMilliseconds(
           scheduledDate,
-          selectedInterval * MS_IN_ONE_HOUR
+          selectedInterval * MS_IN_ONE_HOUR,
         );
         break;
       case "WEEKDAYS":
@@ -379,13 +379,13 @@ export function getRecurringOrderDates(
       case "DAILY":
         scheduledDate = addMilliseconds(
           scheduledDate,
-          selectedInterval * MS_IN_ONE_DAY
+          selectedInterval * MS_IN_ONE_DAY,
         );
         break;
       case "WEEKLY":
         scheduledDate = addMilliseconds(
           scheduledDate,
-          selectedInterval * 7 * MS_IN_ONE_DAY
+          selectedInterval * 7 * MS_IN_ONE_DAY,
         );
         break;
     }
@@ -395,10 +395,10 @@ export function getRecurringOrderDates(
 
 export const findSchedule = (
   senderLocation: string,
-  senderLocationOptions: LocationOptionsProps[]
+  senderLocationOptions: LocationOptionsProps[],
 ) => {
   const selectedOption = senderLocationOptions.find(
-    (option) => option.code === senderLocation
+    (option) => option.code === senderLocation,
   );
   if (selectedOption) {
     return {
@@ -414,7 +414,7 @@ export function findScheduleTime(
   senderSchedule: SenderPermittedWindowInfo,
   day: 0 | 1 | 2 | 3 | 4 | 5 | 6,
   dayRef: "start" | "end",
-  timeRef: "hours" | "minutes"
+  timeRef: "hours" | "minutes",
 ) {
   const timeString = senderSchedule.schedule[day][dayRef];
   const [hours, minutes] = timeString
@@ -440,7 +440,7 @@ export function reassignDayFromSunToMonWeekStart(day: DayNumber) {
 export function getTimeFromSchedule(
   senderSchedule: SenderPermittedWindowInfo,
   timeRef: "start" | "end",
-  date: Date
+  date: Date,
 ) {
   const day = reassignDayFromSunToMonWeekStart(getDay(date) as any);
   const hour = findScheduleTime(senderSchedule, day, timeRef, "hours");
@@ -451,7 +451,7 @@ export function getTimeFromSchedule(
 
 export function getOpeningHours(
   senderSchedule: SenderPermittedWindowInfo | null,
-  date: Date
+  date: Date,
 ): [Date, Date] {
   const minTime = senderSchedule
     ? getTimeFromSchedule(senderSchedule, "start", date)
@@ -464,7 +464,7 @@ export function getOpeningHours(
 
 export function checkDayAgainstSchedule(
   senderSchedule: SenderPermittedWindowInfo,
-  date: Date
+  date: Date,
 ): CheckedOrder {
   const day = reassignDayFromSunToMonWeekStart(getDay(date) as any);
   const hasMaxDaysError = !validateDateIsBeforeMax(date, MAX_DAYS_CREATE_ORDER);
@@ -490,7 +490,7 @@ export function checkDayAgainstSchedule(
 
 export function checkOrdersAgainstSchedule(
   senderSchedule: SenderPermittedWindowInfo,
-  recurringOrderDates: Date[]
+  recurringOrderDates: Date[],
 ) {
   const ordersList: CheckedOrder[] = [];
   let numOrdersWithError = 0;
@@ -508,7 +508,7 @@ export function checkOrdersAgainstSchedule(
 
 export function getSimilarOrderDayString(
   inputDate: Date,
-  includeOn: boolean = false
+  includeOn: boolean = false,
 ) {
   if (isToday(inputDate)) {
     return `today`;
@@ -517,14 +517,14 @@ export function getSimilarOrderDayString(
   } else {
     return `${includeOn ? "on " : ""}${formatWithDefaultTimeZone(
       inputDate,
-      dayOrdinalShortMonthFormat
+      dayOrdinalShortMonthFormat,
     )}`;
   }
 }
 
 function buildSingleWarningTextMessage(
   warning: SimilarOrderWarning,
-  similarDate: Date
+  similarDate: Date,
 ): string {
   if (warning.time_diff_min === 0) {
     return SIMILAR_ORDER_MSG_TXT;
@@ -532,29 +532,29 @@ function buildSingleWarningTextMessage(
 
   const whenSuffix = warning.time_diff_min < 0 ? EARLIER_TXT : LATER_TXT;
   return `${SIMILAR_ORDER_AT_MSG_TXT} ${getSimilarOrderDayString(
-    similarDate
+    similarDate,
   )} at ${warning.pickup_time} (${Math.abs(
-    warning.time_diff_min
+    warning.time_diff_min,
   )} minutes ${whenSuffix})`;
 }
 
 function buildMultipleWarningsTextMessage(
   warning: SimilarOrderWarning,
   totalSimilar: number,
-  similarDate: Date
+  similarDate: Date,
 ): string {
   const whenSuffix = warning.time_diff_min < 0 ? EARLIER_TXT : LATER_TXT;
   return `${totalSimilar} ${SIMILAR_NUM_ORDERS_INCLUDING_MSG_TXT} ${getSimilarOrderDayString(
     similarDate,
-    true
+    true,
   )}, including at ${warning.pickup_time} (${Math.abs(
-    warning.time_diff_min
+    warning.time_diff_min,
   )} minutes ${whenSuffix})`;
 }
 
 export function getSimilarWarningsMessages(
   warnings: SimilarOrderWarning[],
-  pickupDate: Date | null
+  pickupDate: Date | null,
 ) {
   // This helper will build the title and text messages
   // to use in the similar order warning panel
@@ -570,7 +570,7 @@ export function getSimilarWarningsMessages(
         : SIMILAR_ORDERS_ALERT_TITLE;
 
     const numExactSimilar: number = warnings.filter(
-      (warning: SimilarOrderWarning) => warning.time_diff_min === 0
+      (warning: SimilarOrderWarning) => warning.time_diff_min === 0,
     ).length;
     const numOtherSimilar: number = warnings.length - numExactSimilar;
 
@@ -589,12 +589,12 @@ export function getSimilarWarningsMessages(
         text = buildMultipleWarningsTextMessage(
           closestToZero,
           warnings.length,
-          pickupDate
+          pickupDate,
         );
       } else if (numExactSimilar === 1) {
         // retrieve the order with the same time, might not be the first
         const exactSimilarOrder = warnings.filter(
-          (warning: SimilarOrderWarning) => warning.time_diff_min === 0
+          (warning: SimilarOrderWarning) => warning.time_diff_min === 0,
         )[0];
         text = buildSingleWarningTextMessage(exactSimilarOrder, pickupDate);
       } else if (numExactSimilar >= 2) {

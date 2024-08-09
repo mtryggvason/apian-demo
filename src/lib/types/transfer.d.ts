@@ -6,7 +6,7 @@ import { priority } from "@/lib/types/order";
 export interface Transfer extends ResponseValidAt {
   code: string;
   type: string;
-  status: string;
+  status: ApianTransferStatusCodes;
   actual_arrival_time: string | null;
   load_time: string | null;
   unload_time: string | null;
@@ -37,7 +37,7 @@ export interface NearbyTransfer {
 export interface TransferDetails extends ResponseValidAt {
   code: string;
   type: string;
-  status: string;
+  status: ApianTransferStatusCodes;
 
   // Arrival Times
   actual_destination_arrival_time: string | null;
