@@ -136,7 +136,7 @@ export const Board = ({
 
   const debouncedTriggerSample = useDebounceCallback(() => {
     if (samplerLoaded) {
-      sampleRef.current?.triggerAttackRelease("C2", 100);
+      sampleRef.current?.triggerAttackRelease(" C2", 100);
     }
   }, 80);
 
