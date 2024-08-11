@@ -18,7 +18,7 @@ export function Arrow({ userLocation, targetLocation }: any) {
       const newOrientation = calculateBearingAndElevation(
         lat,
         lon,
-        altitude || 0,
+        altitude,
         target.latitude,
         target.longitude,
         target.altitude,
@@ -39,28 +39,32 @@ export function Arrow({ userLocation, targetLocation }: any) {
   useEffect(() => {
     const handleOrientation = (event: any) => {
       const { alpha, beta, gamma, webkitCompassHeading } = event;
-      const compassHeading = getUserHeading(event); // Fallback to alpha if webkitCompassHeading is not available
 
-      // Calculate the bearing to the target
+      // Get the compass heading (adjust for different devices if necessary)
+      const compassHeading = getUserHeading(event);
 
       // Calculate the direction to the target relative to the current heading
-      const directionToTarget = compassHeading - orientation.bearing;
+      let directionToTarget = compassHeading - orientation.bearing;
 
+      // Normalize direction to a 0-360 degree range
+      directionToTarget = (directionToTarget + 360) % 360;
+
+      // Calculate yaw, pitch, and roll
+      const yaw = THREE.MathUtils.degToRad(directionToTarget); // Horizontal direction
+      const pitch = THREE.MathUtils.degToRad(orientation.elevation); // Vertical tilt
+      const roll = THREE.MathUtils.degToRad(0); // Tilt left/right
+
+      // Apply the rotation with yaw, pitch, and roll
       setRotation(
         new THREE.Euler(
-          THREE.MathUtils.degToRad(0), // Pitch (tilt forward/backward)
-          THREE.MathUtils.degToRad(0), // Roll (tilt left/right)
-          THREE.MathUtils.degToRad(directionToTarget), // Yaw (heading/rotation around vertical axis)
+          pitch, // Pitch: Up/Down
+          roll, // Roll: Tilt left/right
+          yaw, // Yaw: Horizontal rotation
         ),
       );
     };
 
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener("deviceorientation", handleOrientation);
-    } else {
-      alert("DeviceOrientationEvent is not supported on your device/browser.");
-    }
-
+    window.addEventListener("deviceorientation", handleOrientation);
     return () => {
       window.removeEventListener("deviceorientation", handleOrientation);
     };

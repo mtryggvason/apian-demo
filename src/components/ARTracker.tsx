@@ -24,6 +24,7 @@ import SlidePanel from "@/components/popovers/SlidePanel";
 
 interface simpleCoordWithHeading extends simpleCoord {
   heading?: number | null;
+  altitude?: number | null;
 }
 
 export const ARTracker = () => {
@@ -65,6 +66,7 @@ export const ARTracker = () => {
     } else compassdir = event.alpha;
     setHeading(Math.floor(compassdir));
   }, 100);
+
   useEffect(() => {
     if (hasPermission) {
       window.addEventListener("deviceorientation", handleOrientation);
@@ -90,17 +92,20 @@ export const ARTracker = () => {
 
   const getUserLocation = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error("Error getting user's location:", error);
-        },
-      );
+      setInterval(() => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lon: position.coords.longitude,
+              altitude: position.coords.altitude,
+            });
+          },
+          (error) => {
+            console.error("Error getting user's location:", error);
+          },
+        );
+      }, 1000);
     } else {
       alert("Geolocation is not supported by your browser.");
     }
@@ -184,6 +189,12 @@ export const ARTracker = () => {
               zoom: 16, // Initial zoom level
               pitch: 0, // Pitch angle
               bearing: 0, // Bearing angle
+            }}
+            onClick={(event) => {
+              const coordinates = event.lngLat; // Get the coordinates of the click
+              const lon = coordinates.lng; // Longitude
+              const lat = coordinates.lat; // Latitud
+              setDronePosition({ lat, lon });
             }}
             ref={mapRef}
           >
