@@ -57,7 +57,10 @@ export const ARTracker = () => {
 
   const handleOrientation = useDebounceCallback((event) => {
     let compassdir;
-    setBeta(event.beta);
+    const { beta } = event;
+    let normalizedBeta = beta < 0 ? 360 + beta : beta;
+    normalizedBeta = Math.min(normalizedBeta, 360);
+    setBeta(normalizedBeta);
     if (event.webkitCompassHeading) {
       // Apple works only with this, alpha doesn't work
       compassdir = event.webkitCompassHeading;
@@ -146,7 +149,7 @@ export const ARTracker = () => {
                         ? {
                             lat: dronePosition.lat,
                             lng: dronePosition.lon,
-                            altitude: parseInt(dronePosition.altitude as any),
+                            altitude: dronePosition.altitude,
                           }
                         : { lat: 48.1858, lng: 16.3128 }
                     }

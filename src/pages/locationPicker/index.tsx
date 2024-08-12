@@ -78,7 +78,11 @@ const LocationsPicker = function () {
           const coordinates = event.lngLat; // Get the coordinates of the click
           const lon = coordinates.lng; // Longitude
           const lat = coordinates.lat; // Latitud
-          setMarkerPosition({ lat, lon, altitude: markerPosition?.altitude });
+          setMarkerPosition({
+            lat,
+            lon,
+            altitude: markerPosition?.altitude ?? 10,
+          });
         }}
       >
         {markerPosition && (
