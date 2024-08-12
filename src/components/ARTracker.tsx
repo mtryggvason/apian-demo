@@ -42,6 +42,9 @@ export const ARTracker = () => {
     getUserLocation();
     getGyroscopePermission();
   };
+  const videoConstraints = {
+    facingMode: "environment",
+  };
 
   useEffect(() => {
     clientRef.current = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
@@ -129,7 +132,9 @@ export const ARTracker = () => {
     <>
       {
         <div ref={canvasRef} className="relative h-[calc(100dvh)]" id="webcam">
-          {hasPermission && <Webcam className="h-screen" />}
+          {hasPermission && (
+            <Webcam videoConstraints={videoConstraints} className="h-screen" />
+          )}
           {hasPermission && userLocation && (
             <>
               <div className="absolute top-[25px] right-[25px]">
@@ -145,13 +150,7 @@ export const ARTracker = () => {
                   <Arrow
                     userLocation={userLocation}
                     targetLocation={
-                      dronePosition
-                        ? {
-                            lat: dronePosition.lat,
-                            lng: dronePosition.lon,
-                            altitude: dronePosition.altitude,
-                          }
-                        : { lat: 48.1858, lng: 16.3128 }
+                      dronePosition ?? { lat: 48.1858, lon: 16.3128 }
                     }
                   />
                 </Canvas>
@@ -162,8 +161,11 @@ export const ARTracker = () => {
                 </div>
                 <div className="mt-2 bg-apian-yellow p-2 rounded-md text-center">
                   <Text textSize="h2Bold">
-                    User altitude: {beta.toFixed(1)}
+                    User altitude: {userLocation.altitude?.toFixed(1)}
                   </Text>
+                </div>
+                <div className="mt-2 bg-apian-yellow p-2 rounded-md text-center">
+                  <Text textSize="h2Bold">Drone altitude: {heading}</Text>
                 </div>
               </div>
             </>

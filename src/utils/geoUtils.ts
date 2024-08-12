@@ -1,3 +1,4 @@
+import { simpleCoordWithHeading } from "@/components/ARTracker";
 import { bearing, distance as turfDistance, point } from "@turf/turf";
 
 const calculateBearing = (
@@ -23,7 +24,7 @@ const calculateBearing = (
   return (bearingDeg + 360) % 360; // Normalize to 0-360 degrees
 };
 
-import { MathUtils } from "three";
+import { MathUtils, Matrix4, Vector3 } from "three";
 
 export const calculateBearingAndElevation = (
   startLat: number,
@@ -60,12 +61,34 @@ export const calculateBearingAndElevation = (
   // Calculate the vertical height difference
   const heightDifference = destAlt - startAlt;
 
-  // Calculate the 3D distance (hypotenuse)
-  const distance3D = Math.sqrt(horizontalDistance ** 2 + heightDifference ** 2);
+  const v1 = new Vector3(startLat, startLng, startAlt);
+  const v2 = new Vector3(startLat, startLng, startAlt);
 
-  // Calculate the elevation angle in degrees
+  // Calculate the elevation
   const elevationRad = Math.atan2(heightDifference, horizontalDistance);
   const elevationDeg = (elevationRad * 180) / Math.PI;
 
+  const elevatin =
+    Math.atan2(startLat, destLat) - Math.atan2(startLng, destLng);
   return { bearing, elevation: elevationDeg };
+};
+
+const normalizeAngleDifference = (angle1: number, angle2: number) => {
+  let diff = Math.abs(angle1 - angle2) % 360;
+  return diff > 180 ? 360 - diff : diff;
+};
+
+// Function to check if the target is in view
+export const isTargetInView = (
+  compassHeading: number,
+  devicePitch: number,
+  targetBearing: number,
+  targetElevation: number,
+  yawThreshold = 10, // acceptable range for yaw difference
+  pitchThreshold = 1, // acceptable range for pitch difference
+) => {
+  const yawDifference = normalizeAngleDifference(compassHeading, targetBearing);
+  const pitchDifference = Math.abs(devicePitch - targetElevation);
+
+  return yawDifference <= yawThreshold && pitchDifference <= pitchThreshold;
 };
