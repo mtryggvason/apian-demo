@@ -15,10 +15,11 @@ export function Arrow({ userLocation, targetLocation }: any) {
         longitude: targetLocation.lng,
         altitude: targetLocation.altitude || 0,
       };
+      console.log(target.altitude);
       const newOrientation = calculateBearingAndElevation(
         lat,
         lon,
-        altitude,
+        0,
         target.latitude,
         target.longitude,
         target.altitude,

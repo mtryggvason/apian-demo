@@ -1,10 +1,7 @@
 import { Arrow } from "@/components/Compass";
-import { DroneButton } from "@/components/icons/DroneButton";
 import { Canvas } from "@react-three/fiber";
-import Link from "next/link";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ARView from "@/components/AR";
-import { DeliveryTracker } from "@/components/maps/DeliveryTracker";
 import StyledButton from "@/components/buttons/StyledButton";
 import { Card } from "@/components/cards/Card";
 import Text from "@/components/typography/Text";
@@ -12,8 +9,7 @@ import { simpleCoord } from "@/lib/types/coordinates";
 import { distance } from "@turf/turf";
 import { simpleCoordToPoint } from "@/lib/mapHelpers";
 import { KILOMETERS } from "@/lib/constants/unitConstant";
-import { getClosestTracking } from "@/utils/transferGenerator";
-import { useDebounceCallback, useInterval } from "usehooks-ts";
+import { useDebounceCallback } from "usehooks-ts";
 import { ApianMap } from "@/components/maps/ApianMap";
 import { Marker } from "react-map-gl";
 import { ArrowMarker } from "@/components/icons/ArrowMarker";
@@ -22,7 +18,9 @@ import { Drone } from "@/components/icons/Drone";
 import { MapIcon } from "@/components/icons/MapIcon";
 import SlidePanel from "@/components/popovers/SlidePanel";
 
-interface simpleCoordWithHeading extends simpleCoord {
+import Webcam from "react-webcam";
+
+export interface simpleCoordWithHeading extends simpleCoord {
   heading?: number | null;
   altitude?: number | null;
 }
@@ -35,11 +33,9 @@ export const ARTracker = () => {
     useState<simpleCoordWithHeading | null>(null);
   const clientRef = useRef<any>(null);
   const [heading, setHeading] = useState(0);
-  const [dronePosition, setDronePosition] = useState<simpleCoord | null>(null);
+  const [dronePosition, setDronePosition] =
+    useState<simpleCoordWithHeading | null>(null);
   const [showMap, setShowMap] = useState(false);
-  const ar = useMemo(() => {
-    return <ARView />;
-  }, []);
 
   const requestPermission = () => {
     getUserLocation();
@@ -54,6 +50,7 @@ export const ARTracker = () => {
 
     clientRef.current.on("message", (topic: any, message: any) => {
       const messageAsJSON = JSON.parse(message.toString());
+      console.log(messageAsJSON);
       setDronePosition(messageAsJSON);
     });
   }, []);
@@ -128,7 +125,7 @@ export const ARTracker = () => {
     <>
       {
         <div ref={canvasRef} className="relative h-[calc(100dvh)]" id="webcam">
-          {userLocation && ar}
+          {hasPermission && <Webcam className="h-screen" />}
           {hasPermission && userLocation && (
             <>
               <div className="absolute top-[25px] right-[25px]">
@@ -145,7 +142,11 @@ export const ARTracker = () => {
                     userLocation={userLocation}
                     targetLocation={
                       dronePosition
-                        ? { lat: dronePosition.lat, lng: dronePosition.lon }
+                        ? {
+                            lat: dronePosition.lat,
+                            lng: dronePosition.lon,
+                            altitude: parseInt(dronePosition.altitude as any),
+                          }
                         : { lat: 48.1858, lng: 16.3128 }
                     }
                   />

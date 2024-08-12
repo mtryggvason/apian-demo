@@ -1,3 +1,4 @@
+import { simpleCoordWithHeading } from "@/components/ARTracker";
 import StyledButton from "@/components/buttons/StyledButton";
 import { ApianMap } from "@/components/maps/ApianMap";
 import { simpleCoord } from "@/lib/types/coordinates";
@@ -9,9 +10,8 @@ const LocationsPicker = function () {
   const [userLocation, setUserLocation] = useState<simpleCoord | null>(null);
   const clientRef = useRef<any>(null);
   const mapRef = useRef<MapRef>(null);
-  const [markerPosition, setMarkerPosition] = useState<simpleCoord | null>(
-    null,
-  );
+  const [markerPosition, setMarkerPosition] =
+    useState<simpleCoordWithHeading | null>(null);
   const getUserLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -61,6 +61,16 @@ const LocationsPicker = function () {
         <StyledButton onClick={() => getUserLocation()}>
           Go to My Location
         </StyledButton>
+        <br />
+        <input
+          onChange={(event) => {
+            setMarkerPosition((p) => {
+              return { ...p, altitude: event.target.value } as any;
+            });
+          }}
+          placeholder="Drone Altitude Meters"
+          type="number"
+        />
       </div>
       <ApianMap
         ref={mapRef}

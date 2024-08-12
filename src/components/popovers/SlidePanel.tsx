@@ -19,8 +19,9 @@ export default function SlidePanel({
 }: SlidePanelProps) {
   return (
     <Transition.Root appear show={isOpen} as={Fragment}>
-      <div className="max-w-fullapian-md:pl-10  pointer-events-none fixed bottom-0 right-0 z-50 flex">
+      <div className="max-w-fullapian-md:pl-10  pointer-events-none fixed top-0 right-0 z-50 flex">
         <Transition.Child
+          unmount={false}
           as={Fragment}
           enter="transform transition ease-in-out duration-500 sm:duration-700"
           enterFrom="translate-x-full"
