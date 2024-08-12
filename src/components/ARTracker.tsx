@@ -33,6 +33,7 @@ export const ARTracker = () => {
     useState<simpleCoordWithHeading | null>(null);
   const clientRef = useRef<any>(null);
   const [heading, setHeading] = useState(0);
+  const [beta, setBeta] = useState(0);
   const [dronePosition, setDronePosition] =
     useState<simpleCoordWithHeading | null>(null);
   const [showMap, setShowMap] = useState(false);
@@ -50,13 +51,13 @@ export const ARTracker = () => {
 
     clientRef.current.on("message", (topic: any, message: any) => {
       const messageAsJSON = JSON.parse(message.toString());
-      console.log(messageAsJSON);
       setDronePosition(messageAsJSON);
     });
   }, []);
 
   const handleOrientation = useDebounceCallback((event) => {
     let compassdir;
+    setBeta(event.beta);
     if (event.webkitCompassHeading) {
       // Apple works only with this, alpha doesn't work
       compassdir = event.webkitCompassHeading;
@@ -137,7 +138,7 @@ export const ARTracker = () => {
                 </StyledButton>
               </div>
               <div className="absolute bottom-[100px] flex left-1/2 transform -translate-x-1/2  mt-2 flex-col">
-                <Canvas>
+                <Canvas style={{ height: "50vh" }} className="h-1/2">
                   <Arrow
                     userLocation={userLocation}
                     targetLocation={
@@ -154,6 +155,11 @@ export const ARTracker = () => {
                 <div className="bg-apian-yellow p-2 rounded-md text-center">
                   <Text textSize="h2Bold">
                     Distance to drone: {distanceFromDrone.toFixed(1)} {unit}
+                  </Text>
+                </div>
+                <div className="mt-2 bg-apian-yellow p-2 rounded-md text-center">
+                  <Text textSize="h2Bold">
+                    User altitude: {beta.toFixed(1)}
                   </Text>
                 </div>
               </div>

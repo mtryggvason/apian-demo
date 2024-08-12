@@ -23,6 +23,8 @@ const calculateBearing = (
   return (bearingDeg + 360) % 360; // Normalize to 0-360 degrees
 };
 
+import { MathUtils } from "three";
+
 export const calculateBearingAndElevation = (
   startLat: number,
   startLng: number,
@@ -35,14 +37,16 @@ export const calculateBearingAndElevation = (
   const startPoint = point([startLng, startLat]);
   const destPoint = point([destLng, destLat]);
 
-  // Calculate the distance between the two points in meters
-  const distance = turfDistance(startPoint, destPoint, { units: "meters" });
+  // Calculate the horizontal distance between the two points in meters
+  const horizontalDistance = turfDistance(startPoint, destPoint, {
+    units: "meters",
+  });
 
   // Calculate the bearing using the great-circle formula
-  const startLatRad = (startLat * Math.PI) / 180;
-  const startLngRad = (startLng * Math.PI) / 180;
-  const destLatRad = (destLat * Math.PI) / 180;
-  const destLngRad = (destLng * Math.PI) / 180;
+  const startLatRad = MathUtils.degToRad(startLat);
+  const startLngRad = MathUtils.degToRad(startLng);
+  const destLatRad = MathUtils.degToRad(destLat);
+  const destLngRad = MathUtils.degToRad(destLng);
 
   const dLng = destLngRad - startLngRad;
   const y = Math.sin(dLng) * Math.cos(destLatRad);
@@ -53,9 +57,14 @@ export const calculateBearingAndElevation = (
   const bearingDeg = (bearingRad * 180) / Math.PI;
   const bearing = (bearingDeg + 360) % 360; // Normalize to 0-360 degrees
 
+  // Calculate the vertical height difference
+  const heightDifference = destAlt - startAlt;
+
+  // Calculate the 3D distance (hypotenuse)
+  const distance3D = Math.sqrt(horizontalDistance ** 2 + heightDifference ** 2);
+
   // Calculate the elevation angle in degrees
-  const height = destAlt - startAlt;
-  const elevationRad = Math.atan2(height, distance);
+  const elevationRad = Math.atan2(heightDifference, horizontalDistance);
   const elevationDeg = (elevationRad * 180) / Math.PI;
 
   return { bearing, elevation: elevationDeg };

@@ -65,7 +65,7 @@ const LocationsPicker = function () {
         <input
           onChange={(event) => {
             setMarkerPosition((p) => {
-              return { ...p, altitude: event.target.value } as any;
+              return { ...p, altitude: parseInt(event.target.value) } as any;
             });
           }}
           placeholder="Drone Altitude Meters"
@@ -78,7 +78,7 @@ const LocationsPicker = function () {
           const coordinates = event.lngLat; // Get the coordinates of the click
           const lon = coordinates.lng; // Longitude
           const lat = coordinates.lat; // Latitud
-          setMarkerPosition({ lat, lon });
+          setMarkerPosition({ lat, lon, altitude: markerPosition?.altitude });
         }}
       >
         {markerPosition && (
