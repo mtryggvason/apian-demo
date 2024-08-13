@@ -80,7 +80,7 @@ export function Arrow({ userLocation, targetLocation }: any) {
     setIsInView(
       isTargetInView(
         compassHeading,
-        normalizedBeta - 45,
+        normalizedBeta - 90,
         orientation.bearing,
         orientation.elevation,
       ),
