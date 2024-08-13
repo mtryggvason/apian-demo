@@ -17,8 +17,6 @@ export const CloseButton = ({
     {...props}
     bgColor="white"
   >
-    <CloseIcon
-      className={`${size === "mdRoundedMdSquare" ? "" : "h-[7px] w-[7px]"}`}
-    />
+    <CloseIcon className={`h-[25px] w-[25px]`} />
   </StyledButton>
 );
