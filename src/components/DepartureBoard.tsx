@@ -109,10 +109,10 @@ export function DepartureBoard({}) {
     return (
       new Date(
         a.destination_location.estimated_earliest_destination_arrival_time!,
-      ) -
+      ).getMilliseconds() -
       new Date(
-        b.destination_location.estimated_earliest_destination_arrival_time,
-      )
+        b.destination_location.estimated_earliest_destination_arrival_time!,
+      ).getMilliseconds()
     );
   });
 
