@@ -1,14 +1,16 @@
-// src/Arrow.js
-import React, { useEffect, useState } from "react";
-import * as THREE from "three";
-import { calculateBearingAndElevation, isTargetInView } from "@/utils/geoUtils";
+import { simpleCoordWithHeading } from "@/components/ARTracker";
+import { calculateBearingAndElevation } from "@/utils/geoUtils";
+import { useEffect, useState } from "react";
+import { Euler, MathUtils } from "three";
 import { useDebounceCallback, useEventListener } from "usehooks-ts";
 
-export function Arrow({ userLocation, targetLocation }: any) {
-  const [rotation, setRotation] = useState(new THREE.Euler(0, 0, 0));
+const useCompass = (
+  userLocation: simpleCoordWithHeading,
+  targetLocation: simpleCoordWithHeading,
+) => {
+  const [rotation, setRotation] = useState(new Euler(0, 0, 0));
   const [orientation, setOrientation] = useState({ bearing: 0, elevation: 0 });
   const [isInview, setIsInView] = useState(false);
-
   useEffect(() => {
     if (userLocation && targetLocation) {
       const { lat, lon, altitude } = userLocation;
@@ -20,7 +22,7 @@ export function Arrow({ userLocation, targetLocation }: any) {
       const newOrientation = calculateBearingAndElevation(
         lat,
         lon,
-        altitude,
+        altitude ?? 0,
         target.latitude,
         target.longitude,
         target.altitude,
@@ -55,9 +57,9 @@ export function Arrow({ userLocation, targetLocation }: any) {
     directionToTarget = (directionToTarget + 360) % 360;
 
     // Calculate yaw from the direction to target
-    const yaw = THREE.MathUtils.degToRad(directionToTarget);
+    const yaw = MathUtils.degToRad(directionToTarget);
 
-    const pitchFromElevation = THREE.MathUtils.degToRad(orientation.elevation);
+    const pitchFromElevation = MathUtils.degToRad(orientation.elevation);
 
     let normalizedBeta = beta < 0 ? 360 + beta : beta;
     normalizedBeta = Math.min(normalizedBeta, 360);
@@ -65,19 +67,18 @@ export function Arrow({ userLocation, targetLocation }: any) {
     // Calculate pitch based directly on device tilt (beta)
     // If the device is held flat, beta is near 0. If tilted upwards, beta is negative.
     // We reverse pitch if necessary based on how `beta` is reported.
-    const deviceTiltPitch = THREE.MathUtils.degToRad(normalizedBeta);
+    const deviceTiltPitch = MathUtils.degToRad(normalizedBeta);
     const pitch = pitchFromElevation - deviceTiltPitch;
 
-    const roll = THREE.MathUtils.degToRad(0);
+    const roll = MathUtils.degToRad(0);
 
     setRotation(
-      new THREE.Euler(
+      new Euler(
         pitch, // Pitch: Up/Down, controlled by beta
         roll, // Roll: Tilt left/right, usually 0
         yaw, // Yaw: Horizontal rotation
       ),
     );
-
     setIsInView(
       isTargetInView(
         compassHeading,
@@ -89,26 +90,5 @@ export function Arrow({ userLocation, targetLocation }: any) {
   }, 10);
 
   useEventListener("deviceorientation", debouncedOrientation);
-
-  return (
-    <>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1} />
-      <mesh rotation={rotation}>
-        {/* Smaller Arrow Shaft */}
-        <cylinderGeometry args={[0.15, 0.15, 3, 32]} />{" "}
-        {/* Reduced the radius and height */}
-        <meshStandardMaterial color={isInview ? "blue" : "red"} />
-        {/* Smaller Arrowhead */}
-        <mesh position={[0, 1.5, 0]}>
-          {/* Adjusted position for the smaller shaft */}
-          <coneGeometry args={[0.3, 0.75, 32]} />{" "}
-          {/* Reduced the radius and height */}
-          <meshStandardMaterial color={isInview ? "blue" : "red"} />
-        </mesh>
-      </mesh>
-    </>
-  );
-}
-
-export default Arrow;
+  return { rotation, isInview };
+};
