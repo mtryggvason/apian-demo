@@ -18,6 +18,13 @@ import { MapIcon } from "@/components/icons/MapIcon";
 import SlidePanel from "@/components/popovers/SlidePanel";
 
 import Webcam from "react-webcam";
+import { useCompass } from "@/hooks/useCompass";
+import { DeliveryTrackerInfo } from "@/components/DeliveryTrackerInfo";
+import {
+  getTransfers,
+  transferToTransferDetail,
+} from "@/utils/transferGenerator";
+import { Transition } from "@headlessui/react";
 
 export interface simpleCoordWithHeading extends simpleCoord {
   heading?: number | null;
@@ -27,6 +34,7 @@ export interface simpleCoordWithHeading extends simpleCoord {
 export const ARTracker = () => {
   const canvasRef = useRef<any>();
   const mapRef = useRef<any>();
+  const transfer = getTransfers()[0];
   const [hasPermission, setHasPermission] = useState(false);
   const [userLocation, setUserLocation] =
     useState<simpleCoordWithHeading | null>(null);
@@ -36,6 +44,7 @@ export const ARTracker = () => {
   const [dronePosition, setDronePosition] =
     useState<simpleCoordWithHeading | null>(null);
   const [showMap, setShowMap] = useState(false);
+  const { rotation, isInView } = useCompass(userLocation!, dronePosition!);
 
   const requestPermission = () => {
     getUserLocation();
@@ -113,7 +122,7 @@ export const ARTracker = () => {
       alert("Geolocation is not supported by your browser.");
     }
   };
-
+  let isCloseToDrone = false;
   let unit = "KM";
   let distanceFromDrone =
     userLocation && dronePosition
@@ -123,8 +132,11 @@ export const ARTracker = () => {
           { units: KILOMETERS },
         )
       : 0;
+
   if (distanceFromDrone < 1) {
+    isCloseToDrone = distanceFromDrone < 0.05;
     distanceFromDrone = distanceFromDrone * 1000;
+
     unit = "M";
   }
   return (
@@ -134,7 +146,7 @@ export const ARTracker = () => {
           {hasPermission && (
             <Webcam videoConstraints={videoConstraints} className="h-screen" />
           )}
-          {hasPermission && userLocation && (
+          {hasPermission && userLocation && !(isInView && isCloseToDrone) && (
             <>
               <div className="absolute top-[25px] right-[25px]">
                 <StyledButton
@@ -146,12 +158,7 @@ export const ARTracker = () => {
               </div>
               <div className="absolute bottom-[100px] flex left-1/2 transform -translate-x-1/2  mt-2 flex-col">
                 <Canvas style={{ height: "50vh" }} className="h-1/2">
-                  <Arrow
-                    userLocation={userLocation}
-                    targetLocation={
-                      dronePosition ?? { lat: 48.1858, lon: 16.3128 }
-                    }
-                  />
+                  <Arrow rotation={rotation} isInView={isInView} />
                 </Canvas>
                 <div className="bg-apian-yellow p-2 rounded-md text-center">
                   <Text textSize="h2Bold">
@@ -171,6 +178,14 @@ export const ARTracker = () => {
               </div>
             </>
           )}
+          <Transition show={isInView && isCloseToDrone}>
+            <div className="absolute bottom-20 md:left-20 md:right-auto left-0 right-0 w-[350px] m-auto transition duration-300 ease-in data-[closed]:translate-y-full ">
+              <DeliveryTrackerInfo
+                key={transfer.code}
+                transfer={transferToTransferDetail(transfer) as any}
+              ></DeliveryTrackerInfo>
+            </div>
+          </Transition>
         </div>
       }
       {!userLocation && (
