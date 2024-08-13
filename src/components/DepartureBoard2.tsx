@@ -107,7 +107,6 @@ export function DepartureBoard({}) {
 
   return (
     <div className="p-4  min-h-screen w-screen bg-board-black border-black border-4 overflow-hidden">
-      <APIANIcon className="w-[150px] mb-4"></APIANIcon>
       <ScaleToFitWidth>
         <div className="min-h-screen w-screen bg-board-black overflow-x-hidden  p-4">
           <APIANIcon className="w-[200px] mb-4 ml-4"></APIANIcon>
