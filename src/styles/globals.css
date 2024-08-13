@@ -61,6 +61,7 @@ video {
   margin: 0 0.1em;
   height: 1.2em;
   text-align: center;
+  text-transform: uppercase;
   position: relative;
   background-image: url(/cell_background.png);
   background-size: cover;
