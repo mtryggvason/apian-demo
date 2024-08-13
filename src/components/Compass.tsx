@@ -69,12 +69,7 @@ export function Arrow({ userLocation, targetLocation }: any) {
     const pitch = pitchFromElevation - deviceTiltPitch;
 
     const roll = THREE.MathUtils.degToRad(0);
-    //console.log(pitch, directionToTarget);
-    // Apply the rotation with yaw, pitch, and roll
-    /*
-      console.log("yaw", yaw.toFixed(2));
-      console.log("pitch", pitch.toFixed(2));
-      */
+
     setRotation(
       new THREE.Euler(
         pitch, // Pitch: Up/Down, controlled by beta
@@ -85,9 +80,9 @@ export function Arrow({ userLocation, targetLocation }: any) {
     setIsInView(
       isTargetInView(
         compassHeading,
-        deviceTiltPitch,
+        normalizedBeta - 45,
         orientation.bearing,
-        pitchFromElevation,
+        orientation.elevation,
       ),
     );
   }, 10);
