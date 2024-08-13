@@ -63,12 +63,10 @@ video {
   text-align: center;
   text-transform: uppercase;
   position: relative;
-  /*
   background-image: url(/cell_background.png);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  */
   overflow: hidden;
 
   /*
@@ -85,12 +83,13 @@ video {
 }
 
 .departure-board .split {
-  border-top: 0.02em solid #00000066;
-  border-bottom: 0.1em solid #ffffff14;
+  border-top: 0.03em solid rgb(24 24 27);
+  border-bottom: 0.03em solid rgb(24 24 27);
+  opacity: 0.768;
   position: absolute;
   width: 100%;
   left: 0;
-  top: 0.55em;
+  top: 0.58em;
   display: block;
   z-index: 2;
 }
@@ -142,6 +141,7 @@ video {
 .departure-board span.flap.falling span.text {
   border-top: 0.03em solid #444;
   border-bottom: 0.03em solid #444;
+  background: #000;
   position: relative;
   width: 100%;
   display: block;
