@@ -106,7 +106,14 @@ export function DepartureBoard({}) {
       return -1;
     }
     // If both are Complete or both are not, maintain the original order
-    return 0;
+    return (
+      new Date(
+        a.destination_location.estimated_earliest_destination_arrival_time!,
+      ) -
+      new Date(
+        b.destination_location.estimated_earliest_destination_arrival_time,
+      )
+    );
   });
 
   const startLocations = sortedTransfers?.map((transfer: any) => {
