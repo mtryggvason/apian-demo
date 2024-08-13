@@ -98,7 +98,7 @@ const Letter = ({
   return (
     <span
       className="letter font-oswald font-normal"
-      style={{ width: `${Math.min(maxAmountOfLetters, 10)}em` }}
+      style={{ width: `${Math.min(maxAmountOfLetters * 0.65, 10)}em` }}
     >
       <span className="flap top bg-zinc-900">
         <span className="text">{value.mapper(currentValue)}</span>
