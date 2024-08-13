@@ -165,7 +165,9 @@ export const ARTracker = () => {
                   </Text>
                 </div>
                 <div className="mt-2 bg-apian-yellow p-2 rounded-md text-center">
-                  <Text textSize="h2Bold">Drone altitude: {heading}</Text>
+                  <Text textSize="h2Bold">
+                    Drone altitude: {dronePosition?.altitude?.toFixed(1)}
+                  </Text>
                 </div>
               </div>
             </>
@@ -194,6 +196,18 @@ export const ARTracker = () => {
         }}
       >
         <div className="h-screen w-screen">
+          <input
+            type="number"
+            onChange={(event) => {
+              if (dronePosition) {
+                setDronePosition({
+                  ...dronePosition,
+                  altitude: parseInt(event.target.value),
+                });
+              }
+            }}
+            value={dronePosition?.altitude ?? 10}
+          ></input>
           <ApianMap
             initialViewState={{
               longitude: userLocation?.lon, // Longitude of the center point
@@ -206,7 +220,7 @@ export const ARTracker = () => {
               const coordinates = event.lngLat; // Get the coordinates of the click
               const lon = coordinates.lng; // Longitude
               const lat = coordinates.lat; // Latitud
-              setDronePosition({ lat, lon });
+              setDronePosition({ lat, lon, altitude: dronePosition?.altitude });
             }}
             ref={mapRef}
           >

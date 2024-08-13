@@ -85,7 +85,7 @@ export const isTargetInView = (
   targetBearing: number,
   targetElevation: number,
   yawThreshold = 10, // acceptable range for yaw difference
-  pitchThreshold = 1, // acceptable range for pitch difference
+  pitchThreshold = 15, // acceptable range for pitch difference
 ) => {
   const yawDifference = normalizeAngleDifference(compassHeading, targetBearing);
   const pitchDifference = Math.abs(devicePitch - targetElevation);
