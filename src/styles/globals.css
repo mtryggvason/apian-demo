@@ -57,7 +57,7 @@ video {
 
 .departure-board span.letter {
   display: inline-block;
-  width: 0.8em !important;
+  width: 0.65em !important;
   margin: 0 0.1em;
   height: 1.2em;
   text-align: center;
