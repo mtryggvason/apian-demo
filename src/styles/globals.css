@@ -57,7 +57,7 @@ video {
 
 .departure-board span.letter {
   display: inline-block;
-  min-width: 1em;
+  width: 0.8em !important;
   margin: 0 0.1em;
   height: 1.2em;
   text-align: center;
@@ -97,7 +97,6 @@ video {
 .departure-board span.flap {
   display: block;
   top: 0em;
-  min-width: 1em;
   height: 0.65em;
   margin: 0;
   overflow: hidden;

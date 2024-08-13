@@ -97,7 +97,7 @@ const Letter = ({
   }, 1);
   return (
     <span
-      className="letter font-oswald font-bold"
+      className="letter font-oswald font-normal"
       style={{ width: `${Math.min(maxAmountOfLetters, 10)}em` }}
     >
       <span className="flap top bg-zinc-900">
