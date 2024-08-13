@@ -62,10 +62,12 @@ video {
   height: 1.2em;
   text-align: center;
   position: relative;
+  /*
   background-image: url(/cell_background.png);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  */
   overflow: hidden;
 
   /*
@@ -139,7 +141,6 @@ video {
 .departure-board span.flap.falling span.text {
   border-top: 0.03em solid #444;
   border-bottom: 0.03em solid #444;
-  background: #000;
   position: relative;
   width: 100%;
   display: block;

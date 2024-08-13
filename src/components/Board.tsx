@@ -97,20 +97,20 @@ const Letter = ({
   }, 1);
   return (
     <span
-      className="letter"
+      className="letter font-oswald font-bold"
       style={{ width: `${Math.min(maxAmountOfLetters, 10)}em` }}
     >
-      <span className="flap top">
+      <span className="flap top bg-zinc-900">
         <span className="text">{value.mapper(currentValue)}</span>
       </span>
-      <span className="flap bottom">
+      <span className="flap bottom bg-zinc-800">
         <span className="text">{value.mapper(fallingValue)}</span>
       </span>
 
       <span className="split" />
       <span className={`flap falling ${fallingFlapClass}`}>
         {fallingValue && (
-          <span className="text">{value.mapper(fallingValue)}</span>
+          <span className="text bg-zinc-900">{value.mapper(fallingValue)}</span>
         )}
       </span>
     </span>
