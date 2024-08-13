@@ -41,7 +41,8 @@ const MapWrapper = (
   }, []);
 
   const defaultTheme =
-    process.env.NEXT_PUBLIC_MAPBOX_THEME ?? "mapbox://styles/mapbox/standard";
+    process.env.NEXT_PUBLIC_MAPBOX_THEME ??
+    "mapbox://styles/mapbox/outdoors-v12?optimize=true";
   return (
     <>
       {!mapDidload && (

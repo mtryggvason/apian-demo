@@ -109,10 +109,10 @@ export function DepartureBoard({}) {
     return (
       new Date(
         a.destination_location.estimated_earliest_destination_arrival_time!,
-      ).getMilliseconds() -
+      ).getTime() -
       new Date(
         b.destination_location.estimated_earliest_destination_arrival_time!,
-      ).getMilliseconds()
+      ).getTime()
     );
   });
 
@@ -167,28 +167,36 @@ export function DepartureBoard({}) {
 
   return (
     <div className="min-h-screen w-screen bg-board-black overflow-x-hidden  p-4">
-      <APIANIcon className="w-[200px] mb-4 ml-4"></APIANIcon>
+      <APIANIcon className="w-[200px] mb-4 ml-4 "></APIANIcon>
       <ScaleToFitWidth>
         <div className=" bg-board-black px-4  ">
-          <div className="flex flex-row align-top">
-            <div className="mr-2">
-              <h2 className="text-white uppercase">From</h2>
+          <div className="absolute top-0 left-o bg-[#323232] w-full h-[20px] z-10"></div>
+
+          <div className="flex flex-row align-top relative z-20">
+            <div className="mr-2 pl-2">
+              <h2 className="text-white font-normal font-oswald text-sm bg-[#323232]  mb-1">
+                From
+              </h2>
               <Board
                 letterCount={longestSourceName}
                 rowCount={10}
                 value={startLocations as any}
               />
             </div>
-            <div className="mr-2">
-              <h2 className="text-white uppercase">To</h2>
+            <div className="mr-2 pl-2">
+              <h2 className="text-white font-normal font-oswald text-sm mb-1">
+                To
+              </h2>
               <Board
                 letterCount={longesHospitalName}
                 rowCount={10}
                 value={endLocations as any}
               />
             </div>
-            <div className="mr-2">
-              <h2 className="text-white uppercase">Dep. Time</h2>
+            <div className="mr-2 pl-2">
+              <h2 className="text-white font-normal font-oswald text-sm bg-[#323232]  mb-1">
+                Dep. Time
+              </h2>
               <Board
                 letterCount={5}
                 rowCount={10}
@@ -196,7 +204,9 @@ export function DepartureBoard({}) {
               />
             </div>
             <div>
-              <h2 className="text-white uppercase">Status</h2>
+              <h2 className="text-white font-normal font-oswald text-sm bg-[#323232]  mb-1">
+                Status
+              </h2>
               <Board letterCount={3} rowCount={10} value={statuses as any} />
             </div>
           </div>

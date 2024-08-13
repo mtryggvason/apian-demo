@@ -1,7 +1,6 @@
 import { Arrow } from "@/components/Compass";
 import { Canvas } from "@react-three/fiber";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import ARView from "@/components/AR";
+import React, { useEffect, useRef, useState } from "react";
 import StyledButton from "@/components/buttons/StyledButton";
 import { Card } from "@/components/cards/Card";
 import Text from "@/components/typography/Text";
@@ -142,7 +141,7 @@ export const ARTracker = () => {
                   onClick={() => setShowMap(true)}
                   size="mdRoundedMdSquare"
                 >
-                  <MapIcon className="w-[14px] h-auto"></MapIcon>
+                  <MapIcon className="w-[30px] h-auto"></MapIcon>
                 </StyledButton>
               </div>
               <div className="absolute bottom-[100px] flex left-1/2 transform -translate-x-1/2  mt-2 flex-col">

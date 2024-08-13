@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Sampler, start } from "tone";
+import { Filter, Sampler, start } from "tone";
 import { useDebounceCallback, useInterval } from "usehooks-ts";
 export const LETTERS =
   " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,':()&!?+-’".split("");
@@ -129,16 +129,28 @@ export const Board = ({
   const sampleRef = useRef<null | Sampler>(null);
   const [samplerLoaded, setSamplerLoaded] = useState(false);
   useEffect(() => {
-    sampleRef.current = new Sampler({ A1: "/click.m4a" }, () => {
-      setSamplerLoaded(true);
-    }).toDestination();
+    const filter = new Filter(5000, "lowpass").toDestination();
+    sampleRef.current?.connect(filter);
+    sampleRef.current = new Sampler(
+      { A1: "/click2.mp3", A2: "/click2.mp3", A3: "/click3.mp3" },
+      () => {
+        setSamplerLoaded(true);
+      },
+    ).toDestination();
   }, []);
 
   const debouncedTriggerSample = useDebounceCallback(() => {
     if (samplerLoaded) {
-      sampleRef.current?.triggerAttackRelease(" C2", 100);
+      const items = ["A1", "A2", "A3"];
+      const sample = items[Math.floor(Math.random() * items.length)];
+      sampleRef.current?.triggerAttackRelease(
+        sample,
+        0.05,
+        undefined,
+        Math.random(),
+      );
     }
-  }, 80);
+  }, 10);
 
   const longestRow = value.reduce((prev, current: Array<any>) => {
     return Math.max(prev, current.length);
