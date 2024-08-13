@@ -1,5 +1,5 @@
 import { simpleCoordWithHeading } from "@/components/ARTracker";
-import { calculateBearingAndElevation } from "@/utils/geoUtils";
+import { calculateBearingAndElevation, isTargetInView } from "@/utils/geoUtils";
 import { useEffect, useState } from "react";
 import { Euler, MathUtils } from "three";
 import { useDebounceCallback, useEventListener } from "usehooks-ts";
