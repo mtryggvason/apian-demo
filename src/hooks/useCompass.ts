@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { Euler, MathUtils } from "three";
 import { useDebounceCallback, useEventListener } from "usehooks-ts";
 
-const useCompass = (
-  userLocation: simpleCoordWithHeading,
-  targetLocation: simpleCoordWithHeading,
+export const useCompass = (
+  userLocation?: simpleCoordWithHeading,
+  targetLocation?: simpleCoordWithHeading,
 ) => {
   const [rotation, setRotation] = useState(new Euler(0, 0, 0));
   const [orientation, setOrientation] = useState({ bearing: 0, elevation: 0 });
-  const [isInview, setIsInView] = useState(false);
+  const [isInView, setIsInView] = useState(false);
   useEffect(() => {
     if (userLocation && targetLocation) {
       const { lat, lon, altitude } = userLocation;
@@ -90,5 +90,5 @@ const useCompass = (
   }, 10);
 
   useEventListener("deviceorientation", debouncedOrientation);
-  return { rotation, isInview };
+  return { rotation, isInView };
 };
