@@ -97,20 +97,31 @@ const Letter = ({
   }, 1);
   return (
     <span
-      className="letter font-oswald font-normal"
-      style={{ width: `${Math.min(maxAmountOfLetters * 0.65, 10)}em` }}
+      className="font-roboto inline-block uppercase relative text-center overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{
+        width: `${Math.min(maxAmountOfLetters * 1, 10)}em`,
+        minWidth: "0.65em",
+        margin: "0 0.1em",
+        height: "1.2em",
+      }}
     >
-      <span className="flap top bg-zinc-900">
-        <span className="text">{value.mapper(currentValue)}</span>
+      <span className="top bg-zinc-800 block overflow-hidden absolute inset-0 h-[0.65em]">
+        <span className="text block w-full">{value.mapper(currentValue)}</span>
       </span>
-      <span className="flap bottom bg-zinc-800">
-        <span className="text">{value.mapper(fallingValue)}</span>
+      <span className="bottom bg-zinc-800 block overflow-hidden absolute inset-0 top-[0.65em]">
+        <span className="text relative block w-full -top-[0.65em]">
+          {value.mapper(fallingValue)}
+        </span>
       </span>
 
-      <span className="split" />
-      <span className={`flap falling ${fallingFlapClass}`}>
+      <span className="split absolute inset-x-0 top-[0.58em] block border-t-[0.03em] border-b-[0.03em] border-black opacity-[0.768] z-[2]" />
+      <span
+        className={`flap falling block absolute inset-0 ${fallingFlapClass}`}
+      >
         {fallingValue && (
-          <span className="text bg-zinc-900">{value.mapper(fallingValue)}</span>
+          <span className="text block w-full bg-zinc-900 border-t-[0.03em] border-b-[0.03em] border-gray-700">
+            {value.mapper(fallingValue)}
+          </span>
         )}
       </span>
     </span>
@@ -179,17 +190,21 @@ export const Board = ({
       }
       return letters;
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   return (
     <div
-      className="departure-board"
+      className=" inline-block  rounded-lg  text-gray-200 leading-[1.2] "
       onClick={() => {
         start();
       }}
     >
       {rows.map((row, rIndex) => (
-        <div key={rIndex} className="row whitespace-nowrap">
+        <div
+          key={rIndex}
+          className="row whitespace-nowrap"
+        >
           {row.map((value: Slot, columnIndex: number) =>
             rIndex < visibleRows ? (
               <Letter

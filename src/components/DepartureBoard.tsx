@@ -61,7 +61,6 @@ const statusSymbols = [
 ];
 
 export function DepartureBoard({}) {
-  const [render, setRender] = useState(false);
   const [transfers, setTransfers] = useState<any>(getTransfers());
 
   const hospitalOptions = hospitals.map((hospital) => hospital.name);
@@ -118,27 +117,27 @@ export function DepartureBoard({}) {
 
   const startLocations = sortedTransfers?.map((transfer: any) => {
     return `${transfer.source_location.shortName.padEnd(
-      longestSourceName,
+      longestSourceName + 1,
       " ",
     )}`
       .split("")
       .map((letter) => ({
         value: letter.toUpperCase(),
         options: LETTERS,
-        mapper: (value: any) => value,
+        mapper: (value: any) => <span className="text-[#FCFF39]">{value}</span>,
       }));
   });
 
   const endLocations = sortedTransfers?.map((transfer: any) => {
     return `${transfer.destination_location.shortName.padEnd(
-      longesHospitalName,
+      longesHospitalName + 1,
       " ",
     )}`
       .split("")
       .map((letter) => ({
         value: letter.toUpperCase(),
         options: LETTERS,
-        mapper: (value: any) => value,
+        mapper: (value: any) => <span className="flex justify-center text-[#FCFF39]">{value}</span>,
       }));
   });
 
@@ -146,55 +145,49 @@ export function DepartureBoard({}) {
     const transferDetail = transferToTransferDetail(transfer);
     return `${getArrivalTimeAsString(
       transferDetail as unknown as TransferDetails,
-    ).replace("est. ", "")}`
+    )
+    .replace("est. ", "")}`
+    .padEnd(6, " ")
       .split("")
       .map((letter) => ({
         value: letter.toUpperCase(),
         options: LETTERS,
-        mapper: (value: any) => value,
+        mapper: (value: any) => <span className="text-[#FCFF39]">{value}</span>,
       }));
   });
 
+  const randomStatus = () => {
+    const statuses = ["Scheduled", "In transit", "Delivered"];
+    return (statuses[(Math.floor(Math.random() * statuses.length))]);
+  }
+
+  const getStatusColor = (status: string) => {
+    if(status === "Scheduled") {
+      return "#FCFF39"
+    }
+    return "#56D85E"
+  }
   const statuses = sortedTransfers?.map((transfer: any) => {
-    return mapTransferStatusToCode(transfer.status).map((number) => ({
-      value: number,
-      options: [-1, 0, 1, 2],
-      mapper: (value: any) => {
-        return statusSymbols[value];
-      },
-    }));
+    const status = randomStatus()
+    return `${status.padEnd(
+      10,
+      " ",
+    )}`
+      .split("")
+      .map((letter) => ({
+        value: letter.toUpperCase(),
+        options: LETTERS,
+        mapper: (value: any) => <span style={{"color": getStatusColor(status)}}>{value}</span>,
+      }));
   });
 
   return (
-    <div className="min-h-screen w-screen bg-board-black overflow-x-hidden  p-4">
-      <APIANIcon className="w-[200px] mb-4 ml-4 "></APIANIcon>
+    <div className="min-h-screen w-screen bg-black overflow-x-hidden  p-4">
       <ScaleToFitWidth>
-        <div className=" bg-board-black px-4  ">
-          <div className="absolute top-0 left-o bg-[#323232] w-full h-[20px] z-10"></div>
-
+          <APIANIcon className="w-[110px] mb-4 "></APIANIcon>
           <div className="flex flex-row align-top relative z-20">
-            <div className="mr-2 pl-2">
-              <h2 className="text-white font-normal font-oswald text-sm bg-[#323232]  mb-1">
-                From
-              </h2>
-              <Board
-                letterCount={longestSourceName}
-                rowCount={10}
-                value={startLocations as any}
-              />
-            </div>
-            <div className="mr-2 pl-2">
-              <h2 className="text-white font-normal font-oswald text-sm mb-1">
-                To
-              </h2>
-              <Board
-                letterCount={longesHospitalName}
-                rowCount={10}
-                value={endLocations as any}
-              />
-            </div>
-            <div className="mr-2 pl-2">
-              <h2 className="text-white font-normal font-oswald text-sm bg-[#323232]  mb-1">
+          <div className="">
+              <h2 className="text-white uppercase font-normal font-oswald text-sm   mb-1">
                 Dep. Time
               </h2>
               <Board
@@ -203,14 +196,34 @@ export function DepartureBoard({}) {
                 value={departureTimes as any}
               />
             </div>
+            <div className="">
+              <h2 className="text-white uppercase font-normal font-oswald text-sm  mb-1">
+                From
+              </h2>
+              <Board
+                letterCount={longestSourceName}
+                rowCount={10}
+                value={startLocations as any}
+              />
+            </div>
+            <div className="">
+              <h2 className="text-white uppercase font-normal font-oswald text-sm mb-1">
+                Destination
+              </h2>
+              <Board
+                letterCount={longesHospitalName}
+                rowCount={10}
+                value={endLocations as any}
+              />
+            </div>
+
             <div>
-              <h2 className="text-white font-normal font-oswald text-sm bg-[#323232]  mb-1">
-                Status
+              <h2 className="text-white uppercase font-normal font-oswald  text-sm  mb-1">
+                Remarks
               </h2>
               <Board letterCount={3} rowCount={10} value={statuses as any} />
             </div>
           </div>
-        </div>
       </ScaleToFitWidth>
     </div>
   );
