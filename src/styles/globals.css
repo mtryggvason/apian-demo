@@ -44,77 +44,17 @@ video {
 	http://gampleman.eu/post/1488470623/designing-a-departures-board-with-css3
 */
 
-.departure-board {
-  box-sizing: content-box;
-  transform-origin: top left;
-  display: inline-block;
-  line-height: 1.2em;
-}
 
-
-.departure-board .split {
-  border-top: 0.03em solid rgb(24 24 27);
-  border-bottom: 0.03em solid rgb(24 24 27);
-  opacity: 0.768;
-  position: absolute;
-  width: 100%;
-  left: 0;
-  top: 0.58em;
-  display: block;
-  z-index: 2;
-}
-
-.departure-board span.flap {
-  display: block;
-  top: 0em;
-  height: 0.65em;
-  margin: 0;
-  overflow: hidden;
-  left: 0;
-  right: 0;
-}
-
-.departure-board span.text {
-  width: 100%;
-}
-
-.departure-board span.bottom {
-  top: 0.65em;
-}
-
-.departure-board span.bottom span.text {
-  position: relative;
-  top: -0.65em;
-}
-
-.flap.falling {
-  position: absolute;
-}
 .flap.falling .text {
   transform: translateY(10px);
 }
 
 .flap.falling.in .text {
   transform: translate(0.03em);
-  transition-timing-function: ease-in;
 }
 
 .flap.falling.half .text {
   transform: translateY(-0.03em);
-}
-
-.flap.falling.out {
-  opacity: 0;
-}
-
-.departure-board span.flap.falling span.text {
-  border-top: 0.03em solid #444;
-  border-bottom: 0.03em solid #444;
-
-  position: relative;
-  width: 100%;
-  display: block;
-  will-change: transform, opacity;
 }
 
 @keyframes grow {

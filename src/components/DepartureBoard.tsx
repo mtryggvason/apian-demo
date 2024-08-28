@@ -5,10 +5,8 @@ import {
   transferToTransferDetail,
   updateTransferStatus,
 } from "@/utils/transferGenerator";
-import useSWR from "swr";
 import {
   getArrivalTimeAsString,
-  getDepartureTimeAsString,
 } from "@/lib/transferHelpers";
 import { Transfer, TransferDetails } from "@/lib/types/transfer";
 import { APIANIcon } from "@/components/icons/ApianLogo";
@@ -17,7 +15,6 @@ import { useEventListener, useInterval } from "usehooks-ts";
 import { hospitals, sources } from "@/utils/hospitals";
 import {
   ApianTransferStatusCodes,
-  upcomingTransferStatus,
 } from "@/lib/constants/apianTransferStatuses";
 import { HollowPoint } from "@/components/icons/hollowPoint";
 import { BoardDrone } from "@/components/icons/BoardDrone";
@@ -33,34 +30,6 @@ import { TwentyFourHourFormat } from "@/lib/constants/timeConstants";
   TRANSFER_COMPLETED = 200,
 */
 
-function mapTransferStatusToCode(status: ApianTransferStatusCodes): number[] {
-  switch (status) {
-    case ApianTransferStatusCodes.CREATED:
-    case ApianTransferStatusCodes.PENDING:
-      return [0, 0, 0];
-    case ApianTransferStatusCodes.CONFIRMED_BY_OPERATOR:
-      return [1, 0, 0];
-    case ApianTransferStatusCodes.IN_TRANSIT_TO_DESTINATION:
-      return [2, 1, 0];
-    case ApianTransferStatusCodes.TRANSFER_COMPLETED:
-      return [2, 2, 2];
-    default:
-      // Ignoring all cancelled and failed statuses
-      return [];
-  }
-}
-
-const statusSymbols = [
-  <div className="flex mt-[0.2em] justify-center" key={1}>
-    <HollowPoint width="0.5em" />
-  </div>,
-  <div className="flex  justify-center" key={2}>
-    <BoardDrone key={2} width="0.8em" />
-  </div>,
-  <div className="flex mt-[0.2em] justify-center" key={3}>
-    <SolidPoint width="0.5em" />
-  </div>,
-];
 
 export function DepartureBoard({}) {
   const [transfers, setTransfers] = useState<any>(getTransfers());

@@ -35,7 +35,7 @@ const Letter = ({
   const stopAtRef = useRef<number | null>(null);
   const rafRef = useRef(null);
   const lastUpdateTimeRef = useRef<number | null>(null);
-  const [fallingFlapClass, setFallingFlapClass] = useState("");
+  const [fallingFlapStyle, setFallingFlapStyle] = useState({});
   const tick = (timestamp: number) => {
     if (!lastUpdateTimeRef.current) {
       lastUpdateTimeRef.current = timestamp;
@@ -47,7 +47,7 @@ const Letter = ({
       if (onFlip) {
         onFlip();
       }
-      setFallingFlapClass("in");
+      setFallingFlapStyle({transform: "translateY(0.03em)"});
       const oldValue = value.options.at(indexRef.current);
       const newValue = value.options.at(
         (indexRef.current + 1) % value.options.length,
@@ -56,13 +56,13 @@ const Letter = ({
       setCurrentValue(newValue!);
       indexRef.current = (indexRef.current + 1) % value.options.length;
       setTimeout(() => {
-        setFallingFlapClass("half");
+        setFallingFlapStyle({transform: "translateY(-0.03em)"});
       }, DROP_TIME / 2);
 
       if (indexRef.current === stopAtRef.current) {
         setFallingValue(newValue!);
         setTimeout(() => {
-          setFallingFlapClass("out");
+          setFallingFlapStyle({opacity: 0});
         }, DROP_TIME / 2);
         return;
       }
@@ -105,21 +105,21 @@ const Letter = ({
         height: "1.2em",
       }}
     >
-      <span className="top bg-zinc-800 block overflow-hidden absolute inset-0 h-[0.65em]">
-        <span className="text block w-full">{value.mapper(currentValue)}</span>
+      <span className="bg-zinc-800 block overflow-hidden absolute inset-0 h-[0.65em]">
+        <span className="block w-full">{value.mapper(currentValue)}</span>
       </span>
-      <span className="bottom bg-zinc-800 block overflow-hidden absolute inset-0 top-[0.65em]">
-        <span className="text relative block w-full -top-[0.65em]">
+      <span className=" bg-zinc-800 block overflow-hidden absolute inset-0 top-[0.65em]">
+        <span className="relative block w-full -top-[0.65em]">
           {value.mapper(fallingValue)}
         </span>
       </span>
 
-      <span className="split absolute inset-x-0 top-[0.58em] block border-t-[0.03em] border-b-[0.03em] border-black opacity-[0.768] z-[2]" />
+      <span className="absolute inset-x-0 top-[0.58em] block border-t-[0.03em] border-b-[0.03em] border-black opacity-[0.768] z-[2]" />
       <span
-        className={`flap falling block absolute inset-0 ${fallingFlapClass}`}
+        className={`falling block absolute inset-0`}
       >
         {fallingValue && (
-          <span className="text block w-full bg-zinc-900 border-t-[0.03em] border-b-[0.03em] border-gray-700">
+          <span style={fallingFlapStyle} className={`block w-full bg-zinc-900 border-t-[0.03em] border-b-[0.03em] border-gray-700`}>
             {value.mapper(fallingValue)}
           </span>
         )}
@@ -178,6 +178,7 @@ export const Board = ({
   while (appendedValues.length < rowCount) {
     appendedValues.push([]);
   }
+
   const rows = useMemo(() => {
     return appendedValues.map((row: Array<Slot>) => {
       const letters = row;
