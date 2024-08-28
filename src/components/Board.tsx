@@ -10,7 +10,7 @@ import { Filter, Sampler, start } from "tone";
 import { useDebounceCallback, useInterval } from "usehooks-ts";
 export const LETTERS =
   " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,':()&!?+-’".split("");
-export const NUMBERS = " 0123456789.,':()&!?+-’";
+export const NUMBERS = " 0123456789.,':()&!?+-’".split("");
 
 const DROP_TIME = 100;
 
@@ -91,7 +91,7 @@ const Letter = ({
     }, 300 * index);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
-
+  
   const maxAmountOfLetters = value.options.reduce((prev, option) => {
     return Math.max(option.length, prev);
   }, 1);

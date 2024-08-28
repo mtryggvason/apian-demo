@@ -1,4 +1,4 @@
-import { Board, LETTERS } from "@/components/Board";
+import { Board, LETTERS, NUMBERS } from "@/components/Board";
 import { ScaleToFitWidth } from "@/components/scaleToFitWidth";
 import {
   getTransfers,
@@ -22,6 +22,8 @@ import {
 import { HollowPoint } from "@/components/icons/hollowPoint";
 import { BoardDrone } from "@/components/icons/BoardDrone";
 import { SolidPoint } from "@/components/icons/SolidPoint";
+import { formatWithDefaultTimeZone } from "@/lib/dateHelpers";
+import { TwentyFourHourFormat } from "@/lib/constants/timeConstants";
 
 /*
   CREATED = 100,
@@ -62,10 +64,10 @@ const statusSymbols = [
 
 export function DepartureBoard({}) {
   const [transfers, setTransfers] = useState<any>(getTransfers());
-
-  const hospitalOptions = hospitals.map((hospital) => hospital.name);
-  const sourceOptions = sources.map((hospital) => hospital.name);
-
+  const [time, setTime] = useState(new Date())
+  useInterval(() => {
+    setTime(new Date());
+  }, 60000);
   const longesHospitalName = hospitals.reduce((prev, hospital) => {
     return Math.max(prev, hospital.shortName.length + 1);
   }, 0);
@@ -181,10 +183,27 @@ export function DepartureBoard({}) {
       }));
   });
 
+  const clock = [""].map((transfer: any) => {
+    const value = formatWithDefaultTimeZone(time, TwentyFourHourFormat)
+    return `${value}`
+      .split("")
+      .map((letter) => ({
+        value: letter.toUpperCase(),
+        options: NUMBERS,
+        mapper: (value: any) => <span className="text-[#FCFF39]">{value}</span>,
+      }));
+  });
   return (
     <div className="min-h-screen w-screen bg-black overflow-x-hidden  p-4">
       <ScaleToFitWidth>
-          <APIANIcon className="w-[110px] mb-4 "></APIANIcon>
+          <div className="flex justify-between items-start">
+            <APIANIcon className="w-[110px] mb-4 "></APIANIcon>
+            <Board
+                letterCount={4}
+                rowCount={1}
+                value={clock as any}
+              />
+          </div>
           <div className="flex flex-row align-top relative z-20">
           <div className="">
               <h2 className="text-white uppercase font-normal font-oswald text-sm   mb-1">
