@@ -1,6 +1,6 @@
 import { Arrow } from "@/components/Compass";
 import { Canvas } from "@react-three/fiber";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import StyledButton from "@/components/buttons/StyledButton";
 import { Card } from "@/components/cards/Card";
 import Text from "@/components/typography/Text";
@@ -8,13 +8,6 @@ import { simpleCoord } from "@/lib/types/coordinates";
 import { distance } from "@turf/turf";
 import { simpleCoordToPoint } from "@/lib/mapHelpers";
 import { KILOMETERS } from "@/lib/constants/unitConstant";
-import { useDebounceCallback } from "usehooks-ts";
-import { ApianMap } from "@/components/maps/ApianMap";
-import { Marker } from "react-map-gl";
-import { ArrowMarker } from "@/components/icons/ArrowMarker";
-import { Drone } from "@/components/icons/Drone";
-import { MapIcon } from "@/components/icons/MapIcon";
-import SlidePanel from "@/components/popovers/SlidePanel";
 
 import Webcam from "react-webcam";
 import { useCompass } from "@/hooks/useCompass";
@@ -35,19 +28,11 @@ export interface simpleCoordWithHeading extends simpleCoord {
 
 export const ARTracker = () => {
   const canvasRef = useRef<any>();
-  const mapRef = useRef<any>();
   const transfer = getTransfers()[0];
   const [hasPermission, setHasPermission] = useState(false);
   const [userLocation, setUserLocation] =
     useState<simpleCoordWithHeading | null>(null);
-  const [heading, setHeading] = useState(0);
-  const [beta, setBeta] = useState(0);
   const { activeFlight } = useActiveFlight();
-  // The flights API has no altitude, so it's set by hand in the map panel.
-  const [droneAltitude, setDroneAltitude] = useState(10);
-  // Debug override: tapping the map pins the drone to that spot.
-  const [manualDronePosition, setManualDronePosition] =
-    useState<simpleCoord | null>(null);
   const flightLat = activeFlight?.tracking.last_known_location.lat;
   const flightLon = activeFlight?.tracking.last_known_location.lon;
   const route = useMemo<SkyRoute | null>(() => {
@@ -66,24 +51,20 @@ export const ARTracker = () => {
   }, [activeFlight]);
   // Memoised so useCompass only recalculates when the position actually changes.
   const dronePosition = useMemo<simpleCoordWithHeading | null>(() => {
-    if (manualDronePosition) {
-      return { ...manualDronePosition, altitude: droneAltitude };
+    if (!route || flightLat === undefined || flightLon === undefined) {
+      return null;
     }
-    if (flightLat === undefined || flightLon === undefined) return null;
     const position = { lat: flightLat, lon: flightLon };
-    // On a known route, take the altitude from the drawn arc so they match.
-    const altitude = route
-      ? altitudeAlongPath(
-          progressAlongPath(
-            route.source.coordinates,
-            route.destination.coordinates,
-            position,
-          ),
-        )
-      : droneAltitude;
+    // The API has no altitude, so take it from the drawn arc so they match.
+    const altitude = altitudeAlongPath(
+      progressAlongPath(
+        route.source.coordinates,
+        route.destination.coordinates,
+        position,
+      ),
+    );
     return { ...position, altitude };
-  }, [manualDronePosition, flightLat, flightLon, droneAltitude, route]);
-  const [showMap, setShowMap] = useState(false);
+  }, [flightLat, flightLon, route]);
   const { rotation, isInView } = useCompass(userLocation!, dronePosition!);
 
   const requestPermission = () => {
@@ -93,29 +74,6 @@ export const ARTracker = () => {
   const videoConstraints = {
     facingMode: "environment",
   };
-
-  const handleOrientation = useDebounceCallback((event) => {
-    let compassdir;
-    const { beta } = event;
-    let normalizedBeta = beta < 0 ? 360 + beta : beta;
-    normalizedBeta = Math.min(normalizedBeta, 360);
-    setBeta(normalizedBeta);
-    if (event.webkitCompassHeading) {
-      // Apple works only with this, alpha doesn't work
-      compassdir = event.webkitCompassHeading;
-    } else compassdir = event.alpha;
-    setHeading(Math.floor(compassdir));
-  }, 100);
-
-  useEffect(() => {
-    if (hasPermission) {
-      window.addEventListener("deviceorientation", handleOrientation);
-    }
-    // Cleanup listener on component unmount
-    return () => {
-      window.removeEventListener("deviceorientation", handleOrientation);
-    };
-  }, [hasPermission, handleOrientation]);
 
   const getGyroscopePermission = async () => {
     if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
@@ -183,18 +141,11 @@ export const ARTracker = () => {
               userLocation={userLocation}
               route={route}
               dronePosition={dronePosition}
+              droneFixTime={activeFlight?.tracking.last_polling_time}
             />
           )}
           {hasPermission && userLocation && !(isInView && isCloseToDrone) && (
             <>
-              <div className="absolute top-[25px] right-[25px]">
-                <StyledButton
-                  onClick={() => setShowMap(true)}
-                  size="mdRoundedMdSquare"
-                >
-                  <MapIcon className="w-[30px] h-auto"></MapIcon>
-                </StyledButton>
-              </div>
               {!dronePosition && (
                 <div className="absolute bottom-[100px] left-1/2 transform -translate-x-1/2 bg-apian-yellow p-2 rounded-md text-center">
                   <Text textSize="h2Bold">No active flights right now</Text>
@@ -249,63 +200,6 @@ export const ARTracker = () => {
           </StyledButton>
         </Card>
       )}
-      <SlidePanel
-        isOpen={showMap}
-        onClose={() => {
-          setShowMap(false);
-        }}
-      >
-        <div className="h-screen w-screen">
-          <input
-            type="number"
-            onChange={(event) => {
-              const altitude = parseInt(event.target.value);
-              setDroneAltitude(Number.isNaN(altitude) ? 0 : altitude);
-            }}
-            value={droneAltitude}
-          ></input>
-          {manualDronePosition && (
-            <button
-              className="ml-2 underline"
-              onClick={() => setManualDronePosition(null)}
-            >
-              Use live flight position
-            </button>
-          )}
-          <ApianMap
-            initialViewState={{
-              longitude: userLocation?.lon, // Longitude of the center point
-              latitude: userLocation?.lat, // Latitude of the center point
-              zoom: 16, // Initial zoom level
-              pitch: 0, // Pitch angle
-              bearing: 0, // Bearing angle
-            }}
-            onClick={(event) => {
-              const coordinates = event.lngLat; // Get the coordinates of the click
-              const lon = coordinates.lng; // Longitude
-              const lat = coordinates.lat; // Latitud
-              setManualDronePosition({ lat, lon });
-            }}
-            ref={mapRef}
-          >
-            <Marker
-              rotation={heading ?? 0}
-              latitude={userLocation?.lat!}
-              longitude={userLocation?.lon!}
-            >
-              <ArrowMarker className="w-10"></ArrowMarker>
-            </Marker>
-            {dronePosition && (
-              <Marker
-                latitude={dronePosition.lat}
-                longitude={dronePosition.lon}
-              >
-                <Drone></Drone>
-              </Marker>
-            )}
-          </ApianMap>
-        </div>
-      </SlidePanel>
     </>
   );
 };
