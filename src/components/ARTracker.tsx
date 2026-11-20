@@ -1,6 +1,6 @@
 import { Arrow } from "@/components/Compass";
 import { Canvas } from "@react-three/fiber";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import StyledButton from "@/components/buttons/StyledButton";
 import { Card } from "@/components/cards/Card";
 import Text from "@/components/typography/Text";
@@ -12,13 +12,15 @@ import { useDebounceCallback } from "usehooks-ts";
 import { ApianMap } from "@/components/maps/ApianMap";
 import { Marker } from "react-map-gl";
 import { ArrowMarker } from "@/components/icons/ArrowMarker";
-import mqtt from "mqtt";
 import { Drone } from "@/components/icons/Drone";
 import { MapIcon } from "@/components/icons/MapIcon";
 import SlidePanel from "@/components/popovers/SlidePanel";
 
 import Webcam from "react-webcam";
 import { useCompass } from "@/hooks/useCompass";
+import { useActiveFlight } from "@/hooks/useActiveFlight";
+import { SkyPath, SkyRoute } from "@/components/SkyPath";
+import { altitudeAlongPath, progressAlongPath } from "@/utils/skyPath";
 import { DeliveryTrackerInfo } from "@/components/DeliveryTrackerInfo";
 import {
   getTransfers,
@@ -38,11 +40,49 @@ export const ARTracker = () => {
   const [hasPermission, setHasPermission] = useState(false);
   const [userLocation, setUserLocation] =
     useState<simpleCoordWithHeading | null>(null);
-  const clientRef = useRef<any>(null);
   const [heading, setHeading] = useState(0);
   const [beta, setBeta] = useState(0);
-  const [dronePosition, setDronePosition] =
-    useState<simpleCoordWithHeading | null>(null);
+  const { activeFlight } = useActiveFlight();
+  // The flights API has no altitude, so it's set by hand in the map panel.
+  const [droneAltitude, setDroneAltitude] = useState(10);
+  // Debug override: tapping the map pins the drone to that spot.
+  const [manualDronePosition, setManualDronePosition] =
+    useState<simpleCoord | null>(null);
+  const flightLat = activeFlight?.tracking.last_known_location.lat;
+  const flightLon = activeFlight?.tracking.last_known_location.lon;
+  const route = useMemo<SkyRoute | null>(() => {
+    if (!activeFlight) return null;
+    const { source_location, destination_location } = activeFlight;
+    return {
+      source: {
+        name: source_location.name,
+        coordinates: source_location.localisation.coordinates,
+      },
+      destination: {
+        name: destination_location.name,
+        coordinates: destination_location.localisation.coordinates,
+      },
+    };
+  }, [activeFlight]);
+  // Memoised so useCompass only recalculates when the position actually changes.
+  const dronePosition = useMemo<simpleCoordWithHeading | null>(() => {
+    if (manualDronePosition) {
+      return { ...manualDronePosition, altitude: droneAltitude };
+    }
+    if (flightLat === undefined || flightLon === undefined) return null;
+    const position = { lat: flightLat, lon: flightLon };
+    // On a known route, take the altitude from the drawn arc so they match.
+    const altitude = route
+      ? altitudeAlongPath(
+          progressAlongPath(
+            route.source.coordinates,
+            route.destination.coordinates,
+            position,
+          ),
+        )
+      : droneAltitude;
+    return { ...position, altitude };
+  }, [manualDronePosition, flightLat, flightLon, droneAltitude, route]);
   const [showMap, setShowMap] = useState(false);
   const { rotation, isInView } = useCompass(userLocation!, dronePosition!);
 
@@ -53,18 +93,6 @@ export const ARTracker = () => {
   const videoConstraints = {
     facingMode: "environment",
   };
-
-  useEffect(() => {
-    clientRef.current = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
-    clientRef.current.on("connect", () => {
-      clientRef.current.subscribe("apian-drone-position");
-    });
-
-    clientRef.current.on("message", (topic: any, message: any) => {
-      const messageAsJSON = JSON.parse(message.toString());
-      setDronePosition(messageAsJSON);
-    });
-  }, []);
 
   const handleOrientation = useDebounceCallback((event) => {
     let compassdir;
@@ -144,7 +172,18 @@ export const ARTracker = () => {
       {
         <div ref={canvasRef} className="relative h-[calc(100dvh)]" id="webcam">
           {hasPermission && (
-            <Webcam videoConstraints={videoConstraints} className="h-screen" />
+            // Fill the screen exactly so the sky overlay lines up with the video.
+            <Webcam
+              videoConstraints={videoConstraints}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
+          {hasPermission && userLocation && route && (
+            <SkyPath
+              userLocation={userLocation}
+              route={route}
+              dronePosition={dronePosition}
+            />
           )}
           {hasPermission && userLocation && !(isInView && isCloseToDrone) && (
             <>
@@ -156,26 +195,33 @@ export const ARTracker = () => {
                   <MapIcon className="w-[30px] h-auto"></MapIcon>
                 </StyledButton>
               </div>
-              <div className="absolute bottom-[100px] flex left-1/2 transform -translate-x-1/2  mt-2 flex-col">
-                <Canvas style={{ height: "50vh" }} className="h-1/2">
-                  <Arrow rotation={rotation} isInView={isInView} />
-                </Canvas>
-                <div className="bg-apian-yellow p-2 rounded-md text-center">
-                  <Text textSize="h2Bold">
-                    Distance to drone: {distanceFromDrone.toFixed(1)} {unit}
-                  </Text>
+              {!dronePosition && (
+                <div className="absolute bottom-[100px] left-1/2 transform -translate-x-1/2 bg-apian-yellow p-2 rounded-md text-center">
+                  <Text textSize="h2Bold">No active flights right now</Text>
                 </div>
-                <div className="mt-2 bg-apian-yellow p-2 rounded-md text-center">
-                  <Text textSize="h2Bold">
-                    User altitude: {userLocation.altitude?.toFixed(1)}
-                  </Text>
+              )}
+              {dronePosition && (
+                <div className="absolute bottom-[100px] flex left-1/2 transform -translate-x-1/2  mt-2 flex-col">
+                  <Canvas style={{ height: "50vh" }} className="h-1/2">
+                    <Arrow rotation={rotation} isInView={isInView} />
+                  </Canvas>
+                  <div className="bg-apian-yellow p-2 rounded-md text-center">
+                    <Text textSize="h2Bold">
+                      Distance to drone: {distanceFromDrone.toFixed(1)} {unit}
+                    </Text>
+                  </div>
+                  <div className="mt-2 bg-apian-yellow p-2 rounded-md text-center">
+                    <Text textSize="h2Bold">
+                      User altitude: {userLocation.altitude?.toFixed(1)}
+                    </Text>
+                  </div>
+                  <div className="mt-2 bg-apian-yellow p-2 rounded-md text-center">
+                    <Text textSize="h2Bold">
+                      Drone altitude: {dronePosition?.altitude?.toFixed(1)}
+                    </Text>
+                  </div>
                 </div>
-                <div className="mt-2 bg-apian-yellow p-2 rounded-md text-center">
-                  <Text textSize="h2Bold">
-                    Drone altitude: {dronePosition?.altitude?.toFixed(1)}
-                  </Text>
-                </div>
-              </div>
+              )}
             </>
           )}
           <Transition show={isInView && isCloseToDrone}>
@@ -213,15 +259,19 @@ export const ARTracker = () => {
           <input
             type="number"
             onChange={(event) => {
-              if (dronePosition) {
-                setDronePosition({
-                  ...dronePosition,
-                  altitude: parseInt(event.target.value),
-                });
-              }
+              const altitude = parseInt(event.target.value);
+              setDroneAltitude(Number.isNaN(altitude) ? 0 : altitude);
             }}
-            value={dronePosition?.altitude ?? 10}
+            value={droneAltitude}
           ></input>
+          {manualDronePosition && (
+            <button
+              className="ml-2 underline"
+              onClick={() => setManualDronePosition(null)}
+            >
+              Use live flight position
+            </button>
+          )}
           <ApianMap
             initialViewState={{
               longitude: userLocation?.lon, // Longitude of the center point
@@ -234,7 +284,7 @@ export const ARTracker = () => {
               const coordinates = event.lngLat; // Get the coordinates of the click
               const lon = coordinates.lng; // Longitude
               const lat = coordinates.lat; // Latitud
-              setDronePosition({ lat, lon, altitude: dronePosition?.altitude });
+              setManualDronePosition({ lat, lon });
             }}
             ref={mapRef}
           >
